@@ -1,0 +1,8 @@
+messages:
+  greeting: Hey!
+snakes:
+  - Cobra
+  - Mamba
+  - Viper
+embedded:
+  farewell: Bye bye!
