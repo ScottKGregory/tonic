@@ -2,22 +2,44 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/gin-gonic/gin"
 	"github.com/scottkgregory/mamba"
+	"github.com/scottkgregory/tonic"
+	"github.com/scottkgregory/tonic/pkg/helpers"
+	"github.com/scottkgregory/tonic/pkg/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 type AppConfig struct {
-	ConfigFile string `config:"./examples/webapi/config.yaml,The yaml config file to read, true, c"`
+	ConfigFile string         `config:"./examples/webapi/config.yaml, The yaml config file to read, true, c"`
+	Port       int            `config:"8080, The port to host the site on, false, p"`
+	Tonic      models.Options `config:""`
 }
+
+var cfg AppConfig
 
 var rootCmd = &cobra.Command{
 	Use:   "webapi",
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		r, authed, err := tonic.Init(cfg.Tonic)
+		if err != nil {
+			panic(err)
+		}
+
+		r.GET("/tonic", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "Hello!"}) })
+
+		authed.GET("/tonic", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"message": "Getting here means you're logged in, hey there!"})
+		})
+
+		logger := helpers.GetLogger()
+		logger.Info().Msg("Starting listener")
+		r.Run(fmt.Sprintf(":%d", cfg.Port))
 	},
 }
 
@@ -33,18 +55,7 @@ func init() {
 func initConfig() {
 	cfgFile := viper.GetString("configfile")
 
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".cobra" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".cobra")
-	}
+	viper.SetConfigFile(cfgFile)
 
 	viper.AutomaticEnv()
 
@@ -52,7 +63,11 @@ func initConfig() {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Config file not found; ignore error if desired
 		} else {
-			panic(fmt.Errorf("Fatal error config file: %s \n", err))
+			panic(fmt.Errorf("Fatal error config file: %s", err))
 		}
+	}
+
+	if err := viper.Unmarshal(&cfg); err != nil {
+		panic(fmt.Errorf("Error unmarshalling config: %s", err))
 	}
 }
