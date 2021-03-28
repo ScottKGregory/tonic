@@ -23,12 +23,17 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	backend := backends.NewMongoBackend(&opt.Backend)
 	homeHandler := handlers.NewHomeHandler()
 	errorHandler := handlers.NewErrorHandler()
+	probeHandler := handlers.NewProbeHandler(backend)
 	userHandler := handlers.NewUserHandler(backend)
 	authHandler := handlers.NewAuthHandler(backend, &opt.Auth)
 
 	router.GET("/", homeHandler.Home())
 	router.GET("/error/:code", errorHandler.Error(0))
 	router.NoRoute(errorHandler.Error(http.StatusNotFound))
+
+	router.GET("/health", probeHandler.Health())
+	router.GET("/liveliness", probeHandler.Liveliness())
+	router.GET("/readiness", probeHandler.Readiness())
 
 	auth := router.Group("/auth")
 	{

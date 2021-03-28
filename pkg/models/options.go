@@ -8,7 +8,6 @@ type Options struct {
 	Auth                `config:""`
 	Log                 `config:""`
 	Backend             `config:""`
-	Permissions         `config:""`
 }
 
 type Log struct {
@@ -50,9 +49,4 @@ type Backend struct {
 	ConnectionString string `config:"mongodb://127.0.0.1:27017, The backends connection string"`
 	UserCollection   string `config:"users, The backends user collection"`
 	Database         string `config:"tonic, The backends database to use"`
-}
-
-type Permissions struct {
-	List     []string `config:", Extra permissions to register"`
-	Defaults []string `config:", Default permissions for new users"`
 }
