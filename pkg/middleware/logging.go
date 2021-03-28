@@ -31,6 +31,7 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 		l.Info().Msg("Requested")
 
 		c.Set(constants.LoggerKey, l)
+		c.Set(constants.RequestIDKey, rid)
 		c.Next()
 
 		l = populatedLogger(c, rid)

@@ -7,4 +7,5 @@ const (
 	SubjectKey     = "Subject"
 	Authed         = "Authed"
 	GlobalKey      = "Global"
+	RequestIDKey   = "RequestID"
 )

@@ -3,11 +3,14 @@ module github.com/scottkgregory/tonic
 go 1.16
 
 require (
+	github.com/Depado/bfchroma v1.3.0
+	github.com/alecthomas/chroma v0.8.2
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/gin-gonic/gin v1.6.3
 	github.com/lestrrat-go/jwx v1.1.6
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
 	github.com/rs/zerolog v1.21.0
+	github.com/russross/blackfriday/v2 v2.0.1
 	github.com/scottkgregory/mamba v0.2.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
