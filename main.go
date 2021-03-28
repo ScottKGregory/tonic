@@ -26,6 +26,7 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	probeHandler := handlers.NewProbeHandler(backend)
 	userHandler := handlers.NewUserHandler(backend)
 	authHandler := handlers.NewAuthHandler(backend, &opt.Auth)
+	permissionHandler := handlers.NewPermissionsHandler()
 
 	router.GET("/", homeHandler.Home())
 	router.GET("/error/:code", errorHandler.Error(0))
@@ -57,6 +58,11 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 		auth := api.Group("/auth")
 		{
 			auth.GET("/token", authHandler.Token())
+		}
+
+		permissions := api.Group("/permissions")
+		{
+			permissions.GET("/", permissionHandler.ListPermissions())
 		}
 	}
 
