@@ -14,10 +14,12 @@ type UserService struct {
 	backend backends.Backend
 }
 
+// NewUserService initialises a new UserService based on the options supplied
 func NewUserService(log *zerolog.Logger, backend backends.Backend) *UserService {
 	return &UserService{log, backend}
 }
 
+// CreateUser uses the configured backend to create the supplied user after having validted it
 func (s *UserService) CreateUser(in *models.User) (out *models.User, err error) {
 	valid, messages := s.isValidUser(in)
 	if !valid {
@@ -27,6 +29,7 @@ func (s *UserService) CreateUser(in *models.User) (out *models.User, err error) 
 	return s.backend.CreateUser(in)
 }
 
+// CreateUser uses the configured backend to update the supplied user after having validted it
 func (s *UserService) UpdateUser(in *models.User, sub string) (out *models.User, err error) {
 	valid, messages := s.isValidUser(in)
 	if !valid {
@@ -51,6 +54,7 @@ func (s *UserService) UpdateUser(in *models.User, sub string) (out *models.User,
 	return out, err
 }
 
+// DeleteUser uses the configured backend to mark the user as deleted
 func (s *UserService) DeleteUser(sub string) error {
 	user, err := s.GetUser(sub)
 	if err != nil {
@@ -63,6 +67,7 @@ func (s *UserService) DeleteUser(sub string) error {
 	return err
 }
 
+// GetUser uses the configured backend to get a single user based on it's subject claim
 func (s *UserService) GetUser(sub string) (out *models.User, err error) {
 	out, err = s.backend.GetUser(sub)
 	if err != nil {
@@ -76,6 +81,7 @@ func (s *UserService) GetUser(sub string) (out *models.User, err error) {
 	return out, nil
 }
 
+// ListUsers uses the configured backend to list all users
 func (s *UserService) ListUsers() (out *[]models.User, err error) {
 	return s.backend.ListUsers()
 }

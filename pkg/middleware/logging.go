@@ -18,7 +18,6 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
 	dependencies.Tag = options.Tag
-	logger := dependencies.GetLogger()
 
 	return func(c *gin.Context) {
 		rid := c.Request.Header.Get("x-request-id")
@@ -27,17 +26,14 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 		}
 
 		t := time.Now()
-		l := logger.With().
-			Str("client-ip", c.ClientIP()).
-			Str("method", c.Request.Method).
-			Str("path", c.Request.URL.Path).
-			Str("request-id", rid).
-			Logger()
 
+		l := populatedLogger(c, rid)
 		l.Info().Msg("Requested")
 
-		c.Set(constants.LoggerKey, &l)
+		c.Set(constants.LoggerKey, l)
 		c.Next()
+
+		l = populatedLogger(c, rid)
 
 		statusCode := c.Writer.Status()
 		ll := l.Info()
@@ -53,4 +49,16 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 			Dur("duration-ns", time.Duration(time.Since(t).Nanoseconds())).
 			Msg("Returned")
 	}
+}
+
+func populatedLogger(c *gin.Context, rid string) *zerolog.Logger {
+	l := dependencies.GetLogger(c).
+		With().
+		Str("client-ip", c.ClientIP()).
+		Str("method", c.Request.Method).
+		Str("path", c.Request.URL.Path).
+		Str("request-id", rid).
+		Logger()
+
+	return &l
 }

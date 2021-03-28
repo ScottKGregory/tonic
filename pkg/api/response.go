@@ -21,6 +21,9 @@ func SmartResponse(c *gin.Context, data interface{}, err error) {
 	} else if errors.Is(err, &tonicErrors.NotFoundErr{}) {
 		NotFoundResponse(c, err.(*tonicErrors.NotFoundErr))
 		return
+	} else if errors.Is(err, &tonicErrors.UnauthorisedErr{}) {
+		UnauthorisedResponse(c, err.(*tonicErrors.UnauthorisedErr))
+		return
 	} else if err != nil {
 		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
@@ -40,6 +43,15 @@ func NoContentResponse(c *gin.Context) {
 
 func SuccessResponse(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, &ResponseModel{Data: data})
+}
+
+func UnauthorisedResponse(c *gin.Context, errs ...*tonicErrors.UnauthorisedErr) {
+	err := tonicErrors.NewUnauthorisedError()
+	if len(errs) == 1 {
+		err = errs[0]
+	}
+
+	ErrorResponse(c, http.StatusNotFound, err)
 }
 
 func NotFoundResponse(c *gin.Context, errs ...*tonicErrors.NotFoundErr) {

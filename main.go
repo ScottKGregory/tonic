@@ -21,8 +21,17 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 
 	backend := backends.NewMongoBackend(&opt.Backend)
 	userHandler := handlers.NewUserHandler(backend)
+	authHandler := handlers.NewAuthHandler(backend, &opt.Auth)
+
+	auth := router.Group("/auth")
+	{
+		auth.GET("/login", authHandler.Login())
+		auth.GET("/callback", authHandler.Callback())
+		auth.GET("/logout", authHandler.Logout())
+	}
 
 	api := router.Group("/api")
+	api.Use(middleware.Authed(backend, &opt.Cookie, &opt.JWT, &opt.Auth))
 	{
 		users := api.Group("/users")
 		{
@@ -31,6 +40,11 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 			users.DELETE(id(), userHandler.DeleteUser())
 			users.GET(id(), userHandler.GetUser())
 			users.GET("/", userHandler.ListUsers())
+		}
+
+		auth := api.Group("/auth")
+		{
+			auth.GET("/token", authHandler.Token())
 		}
 	}
 
