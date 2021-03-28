@@ -1,9 +1,8 @@
 package services
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
+	"github.com/scottkgregory/tonic/pkg/api/errors"
 	"github.com/scottkgregory/tonic/pkg/backends"
 	"github.com/scottkgregory/tonic/pkg/constants"
 	"github.com/scottkgregory/tonic/pkg/helpers"
@@ -11,76 +10,83 @@ import (
 )
 
 type UserService struct {
-	backend     *backends.Mongo
-	permService *PermissionService
+	log     *zerolog.Logger
+	backend backends.Backend
 }
 
-func NewUserService(backendOptions *models.Backend, permService *PermissionService) *UserService {
-	// log := helpers.GetLogger()
-
-	return &UserService{
-		backend:     backends.NewMongoBackend(backendOptions),
-		permService: permService,
-	}
+func NewUserService(log *zerolog.Logger, backend backends.Backend) *UserService {
+	return &UserService{log, backend}
 }
 
-func (s *UserService) UpdateUser(c *gin.Context) {
-	log := helpers.GetLogger()
-	id := c.Param(constants.IDParam)
-	if helpers.IsEmptyOrWhitespace(id) {
-		log.Warn().Msg("No ID supplied in url")
-		helpers.APIErrorResponse(c, http.StatusBadRequest, "No ID supplied in url")
-		return
+func (s *UserService) CreateUser(in *models.User) (out *models.User, err error) {
+	valid, messages := s.isValidUser(in)
+	if !valid {
+		return out, errors.NewValidationError(messages)
 	}
 
-	var user *models.User
-	err := c.BindJSON(&user)
-	if err != nil {
-		log.Warn().Err(err).Msg("Invalid request body")
-		helpers.APIErrorResponse(c, http.StatusBadRequest, "Invalid request body")
-		return
-	}
-
-	// msgs := make(map[string]string)
-	// Validation
-
-	err = s.backend.SaveUser(log, user)
-	if err != nil {
-		log.Error().Err(err).Msg("Error saving user")
-		helpers.APIErrorResponse(c, http.StatusInternalServerError, "Error saving user")
-		return
-	}
-
-	helpers.APISuccessResponse(c, user)
+	return s.backend.CreateUser(in)
 }
 
-func (s *UserService) GetUser(c *gin.Context) {
-	log := helpers.GetLogger()
-	id := c.Param(constants.IDParam)
-	if helpers.IsEmptyOrWhitespace(id) {
-		log.Warn().Msg("No ID supplied in url")
-		helpers.APIErrorResponse(c, http.StatusBadRequest, "No ID supplied in url")
-		return
+func (s *UserService) UpdateUser(in *models.User, sub string) (out *models.User, err error) {
+	valid, messages := s.isValidUser(in)
+	if !valid {
+		return out, errors.NewValidationError(messages)
 	}
 
-	user, err := s.backend.GetUserByID(log, id)
+	if in.Claims.Subject != sub {
+		messages["claims.subject"] = "Field does not match supplied param"
+		return out, errors.NewValidationError(messages)
+	}
+
+	out, err = s.backend.UpdateUser(in)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting user")
-		helpers.APIErrorResponse(c, http.StatusInternalServerError, "Error getting user")
-		return
+		return out, err
 	}
 
-	helpers.APISuccessResponse(c, user)
+	if out == nil {
+		messages[constants.GlobalKey] = "User does not exist to update"
+		return out, errors.NewValidationError(messages)
+	}
+
+	return out, err
 }
 
-func (s *UserService) ListUsers(c *gin.Context) {
-	log := helpers.GetLogger()
-
-	users, err := s.backend.ListUsers(log)
+func (s *UserService) DeleteUser(sub string) error {
+	user, err := s.GetUser(sub)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting user")
-		helpers.APIErrorResponse(c, http.StatusInternalServerError, "Error getting user")
+		return err
 	}
 
-	helpers.APISuccessResponse(c, users)
+	user.Deleted = true
+
+	_, err = s.UpdateUser(user, sub)
+	return err
+}
+
+func (s *UserService) GetUser(sub string) (out *models.User, err error) {
+	out, err = s.backend.GetUser(sub)
+	if err != nil {
+		return nil, err
+	}
+
+	if out == nil {
+		return nil, errors.NewNotFoundError(sub)
+	}
+
+	return out, nil
+}
+
+func (s *UserService) ListUsers() (out *[]models.User, err error) {
+	return s.backend.ListUsers()
+}
+
+func (s *UserService) isValidUser(user *models.User) (valid bool, messages map[string]string) {
+	valid = true
+	messages = make(map[string]string)
+	if helpers.IsEmptyOrWhitespace(user.Claims.Subject) {
+		valid = false
+		messages["claims.subject"] = "This field is missing"
+	}
+
+	return valid, messages
 }

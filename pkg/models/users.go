@@ -1,13 +1,9 @@
 package models
 
-import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
 type User struct {
-	ID          primitive.ObjectID `bson:"_id" json:"id"`
-	Claims      StandardClaims     `json:"claims"`
-	Permissions []string           `json:"permissions"`
+	Claims      StandardClaims `json:"claims"`
+	Permissions []string       `json:"permissions"`
+	Deleted     bool           `json:"deleted"`
 }
 
 type StandardClaims struct {

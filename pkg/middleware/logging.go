@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/scottkgregory/tonic/pkg/constants"
-	"github.com/scottkgregory/tonic/pkg/helpers"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
 	"github.com/scottkgregory/tonic/pkg/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -17,8 +17,8 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 	if !options.JSON {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
-	helpers.Tag = options.Tag
-	logger := helpers.GetLogger()
+	dependencies.Tag = options.Tag
+	logger := dependencies.GetLogger()
 
 	return func(c *gin.Context) {
 		rid := c.Request.Header.Get("x-request-id")

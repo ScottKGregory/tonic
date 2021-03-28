@@ -1,14 +1,11 @@
 package backends
 
-import (
-	"github.com/rs/zerolog"
-	"github.com/scottkgregory/tonic/pkg/models"
-)
+import "github.com/scottkgregory/tonic/pkg/models"
 
 type Backend interface {
-	GetUserByOIDCSubject(log *zerolog.Logger, sub string) (user *models.User, err error)
-	GetUserByID(log *zerolog.Logger, id string) (user *models.User, err error)
-	ListUsers(log *zerolog.Logger) (users *[]models.User, err error)
-	SaveUser(log *zerolog.Logger, user *models.User) (err error)
-	Ping(log *zerolog.Logger) error
+	CreateUser(in *models.User) (out *models.User, err error)
+	UpdateUser(in *models.User) (out *models.User, err error)
+	GetUser(subject string) (out *models.User, err error)
+	ListUsers() (out *[]models.User, err error)
+	Ping() error
 }

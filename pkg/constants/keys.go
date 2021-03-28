@@ -5,4 +5,6 @@ const (
 	LoggerKey      = "Logger"
 	AuthMethodKey  = "AuthMethod"
 	SubjectKey     = "Subject"
+	Authed         = "Authed"
+	GlobalKey      = "Global"
 )

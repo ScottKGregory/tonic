@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/scottkgregory/mamba"
 	"github.com/scottkgregory/tonic"
-	"github.com/scottkgregory/tonic/pkg/helpers"
 	"github.com/scottkgregory/tonic/pkg/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -26,19 +23,13 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		r, authed, err := tonic.Init(cfg.Tonic)
+		r, _, err := tonic.Init(cfg.Tonic)
 		if err != nil {
 			panic(err)
 		}
 
-		r.GET("/tonic", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "Hello!"}) })
-
-		authed.GET("/tonic", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"message": "Getting here means you're logged in, hey there!"})
-		})
-
-		logger := helpers.GetLogger()
-		logger.Info().Msg("Starting listener")
+		// logger := helpers.GetLogger()
+		// logger.Info().Msg("Starting listener")
 		r.Run(fmt.Sprintf(":%d", cfg.Port))
 	},
 }
