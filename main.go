@@ -21,8 +21,8 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	log := dependencies.GetLogger()
 
 	backend := backends.NewMongoBackend(&opt.Backend)
-	homeHandler := handlers.NewHomeHandler()
-	errorHandler := handlers.NewErrorHandler()
+	homeHandler := handlers.NewHomeHandler(opt.PageHeader)
+	errorHandler := handlers.NewErrorHandler(opt.PageHeader)
 	probeHandler := handlers.NewProbeHandler(backend)
 	userHandler := handlers.NewUserHandler(backend)
 	authHandler := handlers.NewAuthHandler(backend, &opt.Auth)
@@ -48,16 +48,16 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	{
 		users := api.Group("/users")
 		{
-			users.POST("/", userHandler.CreateUser())
-			users.PUT(id(), userHandler.UpdateUser())
-			users.DELETE(id(), userHandler.DeleteUser())
-			users.GET(id(), userHandler.GetUser())
-			users.GET("/", userHandler.ListUsers())
+			users.POST("/", middleware.HasAny(backend, "users:create:*"), userHandler.CreateUser())
+			users.PUT(id(), middleware.HasAny(backend, "users:update:*"), userHandler.UpdateUser())
+			users.DELETE(id(), middleware.HasAny(backend, "users:delete:*"), userHandler.DeleteUser())
+			users.GET(id(), middleware.HasAny(backend, "users:get:*"), userHandler.GetUser())
+			users.GET("/", middleware.HasAny(backend, "users:list:*"), userHandler.ListUsers())
 		}
 
 		auth := api.Group("/auth")
 		{
-			auth.GET("/token", authHandler.Token())
+			auth.GET("/token", middleware.HasAny(backend, "token:get:*"), authHandler.Token())
 		}
 
 		permissions := api.Group("/permissions")

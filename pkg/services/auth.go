@@ -190,25 +190,17 @@ func (s *AuthService) Token(subject string) (token *models.Token, err error) {
 }
 
 // Verify parses and verifies the provided token
-func (s *AuthService) Verify(tok string) (bool, jwt.Token, []string) {
-	var perms []string
+func (s *AuthService) Verify(tok string) (bool, jwt.Token) {
 	token, err := jwt.Parse(
 		[]byte(tok),
 		jwt.WithValidate(true),
 		jwt.WithVerify(jwa.RS256, s.publicKey),
 	)
 	if err != nil {
-		return false, nil, nil
+		return false, nil
 	}
 
-	p, b := token.Get(constants.PermissionsKey)
-	if b {
-		for _, x := range p.([]interface{}) {
-			perms = append(perms, x.(string))
-		}
-	}
-
-	return true, token, perms
+	return true, token
 }
 
 func (s *AuthService) createToken(user *models.User) (token openid.Token, err error) {

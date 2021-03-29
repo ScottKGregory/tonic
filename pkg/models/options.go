@@ -2,9 +2,10 @@ package models
 
 // Options allows for configuring tonic.
 type Options struct {
-	DisableHomepage     bool `config:"false, Disable the default root page"`
-	DisableErrorPages   bool `config:"false, Disable the default error pages"`
-	DisableHealthProbes bool `config:"false, Disable the default health probes"`
+	PageHeader          string `config:"🍸, Replace the default cocktail emoji on the built in static pages"`
+	DisableHomepage     bool   `config:"false, Disable the default root page"`
+	DisableErrorPages   bool   `config:"false, Disable the default error pages"`
+	DisableHealthProbes bool   `config:"false, Disable the default health probes"`
 	Auth                `config:""`
 	Log                 `config:""`
 	Backend             `config:""`

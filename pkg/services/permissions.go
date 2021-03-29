@@ -20,6 +20,7 @@ func NewPermissionsService(log *zerolog.Logger) *PermissionsService {
 			"users:delete:*",
 			"users:get:*",
 			"users:list:*",
+			"token:get:*",
 		}}
 }
 

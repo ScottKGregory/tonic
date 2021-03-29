@@ -42,7 +42,7 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 			c.Set(constants.AuthMethodKey, constants.Cookie)
 		}
 
-		valid, validToken, perms := authService.Verify(token)
+		valid, validToken := authService.Verify(token)
 		if !valid {
 			retErr(c, cookieOptions)
 			return
@@ -76,7 +76,6 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 
 		c.Set(constants.Authed, true)
 		c.Set(constants.SubjectKey, subject)
-		c.Set(constants.PermissionsKey, perms)
 
 		c.Next()
 	}

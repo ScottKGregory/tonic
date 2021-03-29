@@ -28,39 +28,54 @@ const htmlHeader = `<!DOCTYPE html>
       border: 1px solid black;
       border-radius: 4px;
     }
-		a {
-			font-weight: 600;
-			font-size: 1.25em;
-			text-decoration: none;
-		}
+    a {
+      font-weight: 600;
+      font-size: 1.25em;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
-<h1 style="font-size: 5rem">🍸</h1>`
+<h1 style="font-size: 5rem">{{ .Header }}</h1>`
 
 const htmlFooter = "</body></html>"
 
 type vars struct {
 	Backticks string
 	Backtick  string
+	Header    string
 }
 
-func MarkdownPage(md string) ([]byte, error) {
-	tmpl, err := template.New("md").Parse(md)
+func MarkdownPage(md, pageHeader string) ([]byte, error) {
+	v := vars{
+		Backticks: "```",
+		Backtick:  "`",
+		Header:    pageHeader,
+	}
+
+	headerTemplate, err := template.New("header").Parse(htmlHeader)
 	if err != nil {
 		return nil, err
 	}
 
-	var tpl bytes.Buffer
-	err = tmpl.Execute(&tpl, vars{
-		Backticks: "```",
-		Backtick:  "`",
-	})
+	var headerBytes bytes.Buffer
+	err = headerTemplate.Execute(&headerBytes, v)
+	if err != nil {
+		return nil, err
+	}
+
+	markdownTemplate, err := template.New("md").Parse(md)
+	if err != nil {
+		return nil, err
+	}
+
+	var markdownBytes bytes.Buffer
+	err = markdownTemplate.Execute(&markdownBytes, v)
 	if err != nil {
 		return nil, err
 	}
 
 	bf := blackfriday.WithRenderer(bfchroma.NewRenderer(bfchroma.ChromaOptions(html.TabWidth(2))))
-	b := append([]byte(htmlHeader), blackfriday.Run(tpl.Bytes(), bf)...)
+	b := append(headerBytes.Bytes(), blackfriday.Run(markdownBytes.Bytes(), bf)...)
 	return append(b, []byte(htmlFooter)...), nil
 }

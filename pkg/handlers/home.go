@@ -8,10 +8,11 @@ import (
 )
 
 type HomeHandler struct {
+	Header string
 }
 
-func NewHomeHandler() *HomeHandler {
-	return &HomeHandler{}
+func NewHomeHandler(header string) *HomeHandler {
+	return &HomeHandler{header}
 }
 
 const home = `# Welcome to Tonic!
@@ -49,7 +50,7 @@ func main() {
 `
 
 func (h *HomeHandler) Home() gin.HandlerFunc {
-	pageData, err := helpers.MarkdownPage(home)
+	pageData, err := helpers.MarkdownPage(home, h.Header)
 	if err != nil {
 		panic(err)
 	}

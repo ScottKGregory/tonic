@@ -19,10 +19,11 @@ const errMarkdown = `
 `
 
 type ErrorHandler struct {
+	Header string
 }
 
-func NewErrorHandler() *ErrorHandler {
-	return &ErrorHandler{}
+func NewErrorHandler(header string) *ErrorHandler {
+	return &ErrorHandler{header}
 }
 
 func (h *ErrorHandler) Error(override int) gin.HandlerFunc {
@@ -45,7 +46,7 @@ func (h *ErrorHandler) Error(override int) gin.HandlerFunc {
 		}
 
 		msg := fmt.Sprintf(errMarkdown, code, status, c.GetString(constants.RequestIDKey))
-		pageData, err := helpers.MarkdownPage(msg)
+		pageData, err := helpers.MarkdownPage(msg, h.Header)
 		if err != nil {
 			c.String(code, msg)
 		}

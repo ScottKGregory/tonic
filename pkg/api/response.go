@@ -24,6 +24,9 @@ func SmartResponse(c *gin.Context, data interface{}, err error) {
 	} else if errors.Is(err, &tonicErrors.UnauthorisedErr{}) {
 		UnauthorisedResponse(c, err.(*tonicErrors.UnauthorisedErr))
 		return
+	} else if errors.Is(err, &tonicErrors.ForbiddenErr{}) {
+		ForbiddenResponse(c, err.(*tonicErrors.ForbiddenErr))
+		return
 	} else if err != nil {
 		ErrorResponse(c, http.StatusInternalServerError, err)
 		return
@@ -52,6 +55,15 @@ func UnauthorisedResponse(c *gin.Context, errs ...*tonicErrors.UnauthorisedErr) 
 	}
 
 	ErrorResponse(c, http.StatusNotFound, err)
+}
+
+func ForbiddenResponse(c *gin.Context, errs ...*tonicErrors.ForbiddenErr) {
+	err := tonicErrors.NewForbiddenError()
+	if len(errs) == 1 {
+		err = errs[0]
+	}
+
+	ErrorResponse(c, http.StatusForbidden, err)
 }
 
 func NotFoundResponse(c *gin.Context, errs ...*tonicErrors.NotFoundErr) {
