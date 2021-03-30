@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/scottkgregory/tonic/pkg/api"
+	tonicErrors "github.com/scottkgregory/tonic/pkg/api/errors"
 	"github.com/scottkgregory/tonic/pkg/backends"
 	"github.com/scottkgregory/tonic/pkg/constants"
 	"github.com/scottkgregory/tonic/pkg/dependencies"
@@ -13,10 +13,8 @@ import (
 )
 
 func HasAny(backend backends.Backend, required ...string) gin.HandlerFunc {
-	for _, r := range required {
-		if len(strings.Split(r, ":")) != 3 {
-			panic(fmt.Errorf("permission %s not valid, must have three parts", r))
-		}
+	if valid, messages := services.ValidatePermissions(required...); !valid {
+		panic(tonicErrors.NewValidationError(messages))
 	}
 
 	return func(c *gin.Context) {
@@ -25,7 +23,7 @@ func HasAny(backend backends.Backend, required ...string) gin.HandlerFunc {
 
 		user, err := userService.GetUser(c.GetString(constants.SubjectKey))
 		if err != nil {
-			api.ForbiddenResponse(c)
+			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 			c.Abort()
 		}
 
@@ -35,16 +33,14 @@ func HasAny(backend backends.Backend, required ...string) gin.HandlerFunc {
 			return
 		}
 
-		api.ForbiddenResponse(c)
+		api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 		c.Abort()
 	}
 }
 
 func HasAll(backend backends.Backend, required ...string) gin.HandlerFunc {
-	for _, r := range required {
-		if len(strings.Split(r, ":")) != 3 {
-			panic(fmt.Errorf("permission %s not valid, must have three parts", r))
-		}
+	if valid, messages := services.ValidatePermissions(required...); !valid {
+		panic(tonicErrors.NewValidationError(messages))
 	}
 
 	return func(c *gin.Context) {
@@ -53,7 +49,7 @@ func HasAll(backend backends.Backend, required ...string) gin.HandlerFunc {
 
 		user, err := userService.GetUser(c.GetString(constants.SubjectKey))
 		if err != nil {
-			api.ForbiddenResponse(c)
+			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 			c.Abort()
 		}
 
@@ -69,7 +65,7 @@ func HasAll(backend backends.Backend, required ...string) gin.HandlerFunc {
 			return
 		}
 
-		api.ForbiddenResponse(c)
+		api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 		c.Abort()
 	}
 }

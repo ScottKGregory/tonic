@@ -40,3 +40,16 @@ func (s *PermissionsService) DefaultPermissions() (out []string) {
 
 	return out
 }
+
+func ValidatePermissions(perms ...string) (valid bool, messages map[string]string) {
+	valid = true
+	messages = map[string]string{}
+	for _, p := range perms {
+		if len(strings.Split(p, ":")) != 3 {
+			messages[p] = "must have 3 parts"
+			valid = false
+		}
+	}
+
+	return valid, messages
+}

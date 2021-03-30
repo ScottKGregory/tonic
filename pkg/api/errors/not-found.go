@@ -26,3 +26,11 @@ func (e *NotFoundErr) Is(err error) bool {
 	_, ok := err.(*NotFoundErr)
 	return ok
 }
+
+func (e *NotFoundErr) External() string {
+	if helpers.IsEmptyOrWhitespace(e.ID) {
+		return "not found"
+	}
+
+	return fmt.Sprintf("not found: %s", e.ID)
+}

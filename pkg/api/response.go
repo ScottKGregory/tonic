@@ -54,7 +54,7 @@ func UnauthorisedResponse(c *gin.Context, errs ...*tonicErrors.UnauthorisedErr) 
 		err = errs[0]
 	}
 
-	ErrorResponse(c, http.StatusNotFound, err)
+	ErrorResponse(c, http.StatusUnauthorized, err)
 }
 
 func ForbiddenResponse(c *gin.Context, errs ...*tonicErrors.ForbiddenErr) {
@@ -88,6 +88,15 @@ func ErrorResponse(c *gin.Context, code int, err error, validation ...map[string
 	var val map[string]string
 	if len(validation) == 1 {
 		val = validation[0]
+	}
+
+	if e, ok := err.(tonicErrors.TonicError); ok {
+		c.JSON(code, &ResponseModel{
+			Error:      e.External(),
+			Validation: val,
+		})
+
+		return
 	}
 
 	c.JSON(code, &ResponseModel{

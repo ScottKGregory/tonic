@@ -32,12 +32,12 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 				return
 			}
 
-			if !strings.HasPrefix(header, bearerPrefix) {
+			if !strings.HasPrefix(strings.ToLower(header), bearerPrefix) {
 				retErr(c, cookieOptions)
 				return
 			}
 
-			token = strings.TrimPrefix(header, bearerPrefix)
+			token = header[len(bearerPrefix)-1:]
 			c.Set(constants.AuthMethodKey, constants.Bearer)
 		} else {
 			c.Set(constants.AuthMethodKey, constants.Cookie)
@@ -57,7 +57,7 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 		log = &l
 
 		if time.Until(expiry) <= (time.Duration(jwtOptions.Duration)*time.Minute)/2 {
-			log.Debug().Msg("Renewing auth")
+			l.Debug().Msg("Renewing auth")
 			newToken, err := authService.Token(subject)
 			if err != nil {
 				retErr(c, cookieOptions)

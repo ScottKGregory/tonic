@@ -15,3 +15,7 @@ func (e *UnauthorisedErr) Is(err error) bool {
 	_, ok := err.(*UnauthorisedErr)
 	return ok
 }
+
+func (e *UnauthorisedErr) External() string {
+	return "unauthorised"
+}

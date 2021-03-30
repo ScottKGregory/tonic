@@ -35,13 +35,17 @@ func NewValidationError(validation ...map[string]string) *ValidationErr {
 
 func (e *ValidationErr) Error() string {
 	if !helpers.IsEmptyOrWhitespace(e.Message) {
-		return fmt.Sprintf("validation failed: %s", e.Message)
+		return fmt.Sprintf("validation failed: %s, %v", e.Message, e.Validation)
 	}
 
-	return "validation failed"
+	return fmt.Sprintf("validation failed: %v", e.Validation)
 }
 
 func (e *ValidationErr) Is(err error) bool {
 	_, ok := err.(*ValidationErr)
 	return ok
+}
+
+func (e *ValidationErr) External() string {
+	return "validation failed"
 }
