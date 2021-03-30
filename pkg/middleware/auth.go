@@ -21,7 +21,8 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, backend)
-		authService := services.NewAuthService(log, userService, authOptions)
+		permService := services.NewPermissionsService(log)
+		authService := services.NewAuthService(log, userService, permService, authOptions)
 
 		header := c.GetHeader(constants.Authorization)
 		token, err := c.Cookie(cookieOptions.Name)

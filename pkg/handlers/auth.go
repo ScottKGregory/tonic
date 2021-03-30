@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/scottkgregory/tonic/pkg/api"
+	tonicErrors "github.com/scottkgregory/tonic/pkg/api/errors"
 	"github.com/scottkgregory/tonic/pkg/backends"
 	"github.com/scottkgregory/tonic/pkg/constants"
 	"github.com/scottkgregory/tonic/pkg/dependencies"
@@ -13,9 +15,10 @@ import (
 )
 
 const (
-	errorRedirect  = "/error/500"
-	logoutRedirect = "/"
-	loginRedirect  = "/"
+	errorRedirect    = "/error/500"
+	unauthedRedirect = "/error/401"
+	logoutRedirect   = "/"
+	loginRedirect    = "/"
 )
 
 type AuthHandler struct {
@@ -31,7 +34,8 @@ func (h *AuthHandler) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, h.backend)
-		authService := services.NewAuthService(log, userService, h.options)
+		permService := services.NewPermissionsService(log)
+		authService := services.NewAuthService(log, userService, permService, h.options)
 
 		url, err := authService.Login("")
 		if err != nil {
@@ -46,7 +50,8 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, h.backend)
-		authService := services.NewAuthService(log, userService, h.options)
+		permService := services.NewPermissionsService(log)
+		authService := services.NewAuthService(log, userService, permService, h.options)
 
 		token, err := authService.Callback(
 			c.Request.Context(),
@@ -56,8 +61,12 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 			c.Query("error"),
 			c.Query("error_description"),
 		)
-		if err != nil {
+		if errors.Is(err, &tonicErrors.UnauthorisedErr{}) {
+			c.Redirect(http.StatusTemporaryRedirect, unauthedRedirect)
+			return
+		} else if err != nil {
 			c.Redirect(http.StatusTemporaryRedirect, errorRedirect)
+			return
 		}
 
 		c.SetCookie(
@@ -93,7 +102,8 @@ func (h *AuthHandler) Token() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, h.backend)
-		authService := services.NewAuthService(log, userService, h.options)
+		permService := services.NewPermissionsService(log)
+		authService := services.NewAuthService(log, userService, permService, h.options)
 
 		token, err := authService.Token(c.GetString(constants.SubjectKey))
 		api.SmartResponse(c, token, err)

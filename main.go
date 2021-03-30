@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog"
 	"github.com/scottkgregory/tonic/pkg/backends"
 	"github.com/scottkgregory/tonic/pkg/constants"
 	"github.com/scottkgregory/tonic/pkg/dependencies"
@@ -13,6 +14,7 @@ import (
 	"github.com/scottkgregory/tonic/pkg/models"
 )
 
+// Init sets up tonic
 func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	gin.SetMode(gin.ReleaseMode)
 
@@ -49,9 +51,9 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 		users := api.Group("/users")
 		{
 			users.POST("/", middleware.HasAny(backend, "users:create:*"), userHandler.CreateUser())
-			users.PUT(id(), middleware.HasAny(backend, "users:update:*"), userHandler.UpdateUser())
-			users.DELETE(id(), middleware.HasAny(backend, "users:delete:*"), userHandler.DeleteUser())
-			users.GET(id(), middleware.HasAny(backend, "users:get:*"), userHandler.GetUser())
+			users.PUT(id(), middleware.HasAny(backend, id("users:update:")), userHandler.UpdateUser())
+			users.DELETE(id(), middleware.HasAny(backend, id("users:delete:")), userHandler.DeleteUser())
+			users.GET(id(), middleware.HasAny(backend, id("users:get:")), userHandler.GetUser())
 			users.GET("/", middleware.HasAny(backend, "users:list:*"), userHandler.ListUsers())
 		}
 
@@ -62,7 +64,7 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 
 		permissions := api.Group("/permissions")
 		{
-			permissions.GET("/", permissionHandler.ListPermissions())
+			permissions.GET("/", middleware.HasAny(backend, "permissions:list:*"), permissionHandler.ListPermissions())
 		}
 	}
 
@@ -70,10 +72,19 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	return router, nil, nil
 }
 
+// GetLogger returns a zerolog logger with context
+func GetLogger(c ...*gin.Context) *zerolog.Logger {
+	return dependencies.GetLogger(c...)
+}
+
 func id(path ...string) string {
 	p := ""
 	if len(path) > 0 {
 		p = path[0]
+	}
+
+	if strings.HasSuffix(p, ":") {
+		return p + constants.IDParam
 	}
 
 	return strings.TrimSuffix(p, "/") + "/:" + constants.IDParam

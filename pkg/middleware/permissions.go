@@ -30,7 +30,7 @@ func HasAny(backend backends.Backend, required ...string) gin.HandlerFunc {
 		}
 
 		perms := formatPerms(user.Permissions)
-		if contains(perms, required...) {
+		if contains(c, perms, required...) {
 			c.Next()
 			return
 		}
@@ -60,7 +60,7 @@ func HasAll(backend backends.Backend, required ...string) gin.HandlerFunc {
 		v := 0
 		perms := formatPerms(user.Permissions)
 		for _, r := range required {
-			if contains(perms, r) {
+			if contains(c, perms, r) {
 				v += 1
 			}
 		}
@@ -83,16 +83,19 @@ func formatPerms(in []string) []string {
 	return perms
 }
 
-func contains(perms []string, required ...string) bool {
+func contains(c *gin.Context, perms []string, required ...string) bool {
 	for _, r := range required {
-		r = strings.ToLower(r)
 		rs := strings.Split(r, ":")
 		for _, y := range perms {
 			ys := strings.Split(y, ":")
 			v := 0
 
 			for i, p := range rs {
-				if p == ys[i] || ys[i] == "*" {
+				if i == len(rs)-1 && p != "*" {
+					p = c.Param(p)
+				}
+
+				if strings.ToLower(p) == ys[i] || ys[i] == "*" {
 					v += 1
 				}
 

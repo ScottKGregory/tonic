@@ -24,6 +24,7 @@ type AuthService struct {
 	state       string
 	log         *zerolog.Logger
 	userService *UserService
+	permService *PermissionsService
 	options     *models.Auth
 	authConfig  *oauth2.Config
 	provider    *oidc.Provider
@@ -32,7 +33,7 @@ type AuthService struct {
 }
 
 // NewAuthService configures a new instance of AuthService
-func NewAuthService(log *zerolog.Logger, userService *UserService, options *models.Auth) *AuthService {
+func NewAuthService(log *zerolog.Logger, userService *UserService, permService *PermissionsService, options *models.Auth) *AuthService {
 	var err error
 	privateKey, err := helpers.ParsePrivateKey(options.JWT.PrivateKey)
 	if err != nil {
@@ -67,6 +68,7 @@ func NewAuthService(log *zerolog.Logger, userService *UserService, options *mode
 		state,
 		log,
 		userService,
+		permService,
 		options,
 		authConfig,
 		provider,
@@ -135,9 +137,9 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 		EmailVerified: userInfo.EmailVerified,
 	}
 
-	// if len(um.Permissions) == 0 {
-	// 	um.Permissions = s.permService.DefaultPermissions()
-	// }
+	if len(um.Permissions) == 0 {
+		um.Permissions = s.permService.DefaultPermissions()
+	}
 
 	err = userInfo.Claims(&um.Claims)
 	if err != nil {

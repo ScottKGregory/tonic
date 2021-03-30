@@ -21,6 +21,7 @@ func NewPermissionsService(log *zerolog.Logger) *PermissionsService {
 			"users:get:*",
 			"users:list:*",
 			"token:get:*",
+			"permissions:list:*",
 		}}
 }
 
@@ -30,4 +31,12 @@ func (s *PermissionsService) ListPermissions() (out []string, err error) {
 	}
 
 	return out, nil
+}
+
+func (s *PermissionsService) DefaultPermissions() (out []string) {
+	for _, perm := range s.permissions {
+		out = append(out, strings.ToLower(perm))
+	}
+
+	return out
 }
