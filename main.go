@@ -69,7 +69,7 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	}
 
 	log.Trace().Msg("Tonic setup complete")
-	return router, nil, nil
+	return router, api, nil
 }
 
 // GetLogger returns a zerolog logger with context
