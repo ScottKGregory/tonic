@@ -6,25 +6,30 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/scottkgregory/tonic/pkg/api"
 	tonicErrors "github.com/scottkgregory/tonic/pkg/api/errors"
-	"github.com/scottkgregory/tonic/pkg/backends"
 	"github.com/scottkgregory/tonic/pkg/constants"
-	"github.com/scottkgregory/tonic/pkg/dependencies"
+	"github.com/scottkgregory/tonic/pkg/models"
 	"github.com/scottkgregory/tonic/pkg/services"
 )
 
-func HasAny(backend backends.Backend, required ...string) gin.HandlerFunc {
+func HasAny(required ...string) gin.HandlerFunc {
 	if valid, messages := services.ValidatePermissions(required...); !valid {
 		panic(tonicErrors.NewValidationError(messages))
 	}
 
 	return func(c *gin.Context) {
-		log := dependencies.GetLogger(c)
-		userService := services.NewUserService(log, backend)
-
-		user, err := userService.GetUser(c.GetString(constants.SubjectKey))
-		if err != nil {
+		var user *models.User
+		u, ok := c.Get(constants.UserKey)
+		if !ok {
 			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 			c.Abort()
+			return
+		} else {
+			user, ok = u.(*models.User)
+			if !ok {
+				api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
+				c.Abort()
+				return
+			}
 		}
 
 		perms := formatPerms(user.Permissions)
@@ -38,19 +43,25 @@ func HasAny(backend backends.Backend, required ...string) gin.HandlerFunc {
 	}
 }
 
-func HasAll(backend backends.Backend, required ...string) gin.HandlerFunc {
+func HasAll(required ...string) gin.HandlerFunc {
 	if valid, messages := services.ValidatePermissions(required...); !valid {
 		panic(tonicErrors.NewValidationError(messages))
 	}
 
 	return func(c *gin.Context) {
-		log := dependencies.GetLogger(c)
-		userService := services.NewUserService(log, backend)
-
-		user, err := userService.GetUser(c.GetString(constants.SubjectKey))
-		if err != nil {
+		var user *models.User
+		u, ok := c.Get(constants.UserKey)
+		if !ok {
 			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 			c.Abort()
+			return
+		} else {
+			user, ok = u.(*models.User)
+			if !ok {
+				api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
+				c.Abort()
+				return
+			}
 		}
 
 		v := 0

@@ -30,13 +30,20 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	authHandler := handlers.NewAuthHandler(backend, &opt.Auth)
 	permissionHandler := handlers.NewPermissionsHandler()
 
-	router.GET("/", homeHandler.Home())
-	router.GET("/error/:code", errorHandler.Error(0))
-	router.NoRoute(errorHandler.Error(http.StatusNotFound))
+	if !opt.DisableHomepage {
+		router.GET("/", homeHandler.Home())
+	}
 
-	router.GET("/health", probeHandler.Health())
-	router.GET("/liveliness", probeHandler.Liveliness())
-	router.GET("/readiness", probeHandler.Readiness())
+	if !opt.DisableErrorPages {
+		router.GET("/error/:code", errorHandler.Error(0))
+		router.NoRoute(errorHandler.Error(http.StatusNotFound))
+	}
+
+	if !opt.DisableHealthProbes {
+		router.GET("/health", probeHandler.Health())
+		router.GET("/liveliness", probeHandler.Liveliness())
+		router.GET("/readiness", probeHandler.Readiness())
+	}
 
 	auth := router.Group("/auth")
 	{
@@ -50,21 +57,21 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	{
 		users := api.Group("/users")
 		{
-			users.POST("/", middleware.HasAny(backend, "users:create:*"), userHandler.CreateUser())
-			users.PUT(id(), middleware.HasAny(backend, id("users:update:")), userHandler.UpdateUser())
-			users.DELETE(id(), middleware.HasAny(backend, id("users:delete:")), userHandler.DeleteUser())
-			users.GET(id(), middleware.HasAny(backend, id("users:get:")), userHandler.GetUser())
-			users.GET("/", middleware.HasAny(backend, "users:list:*"), userHandler.ListUsers())
+			users.POST("/", middleware.HasAny("users:create:*"), userHandler.CreateUser())
+			users.PUT(id(), middleware.HasAny(id("users:update:")), userHandler.UpdateUser())
+			users.DELETE(id(), middleware.HasAny(id("users:delete:")), userHandler.DeleteUser())
+			users.GET(id(), middleware.HasAny(id("users:get:")), userHandler.GetUser())
+			users.GET("/", middleware.HasAny("users:list:*"), userHandler.ListUsers())
 		}
 
 		auth := api.Group("/auth")
 		{
-			auth.GET("/token", middleware.HasAny(backend, "token:get:*"), authHandler.Token())
+			auth.GET("/token", middleware.HasAny("token:get:*"), authHandler.Token())
 		}
 
 		permissions := api.Group("/permissions")
 		{
-			permissions.GET("/", middleware.HasAny(backend, "permissions:list:*"), permissionHandler.ListPermissions())
+			permissions.GET("/", middleware.HasAny("permissions:list:*"), permissionHandler.ListPermissions())
 		}
 	}
 

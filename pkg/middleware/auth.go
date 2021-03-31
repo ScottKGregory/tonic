@@ -75,8 +75,15 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 			)
 		}
 
+		user, err := userService.GetUser(subject)
+		if err != nil {
+			retErr(c, cookieOptions)
+			return
+		}
+
 		c.Set(constants.Authed, true)
 		c.Set(constants.SubjectKey, subject)
+		c.Set(constants.UserKey, user)
 
 		c.Next()
 	}
