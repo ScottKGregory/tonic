@@ -64,6 +64,8 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 			users.GET("/", middleware.HasAny("users:list:*"), userHandler.ListUsers())
 		}
 
+		api.GET("/me", userHandler.Me())
+
 		auth := api.Group("/auth")
 		{
 			auth.GET("/token", middleware.HasAny("token:get:*"), authHandler.Token())
@@ -82,6 +84,11 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 // GetLogger returns a zerolog logger with context
 func GetLogger(c ...*gin.Context) *zerolog.Logger {
 	return dependencies.GetLogger(c...)
+}
+
+// GetUser returns the current user from context
+func GetUser(c *gin.Context) (user *models.User, ok bool) {
+	return dependencies.GetUser(c)
 }
 
 func id(path ...string) string {

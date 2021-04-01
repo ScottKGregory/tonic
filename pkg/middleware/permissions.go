@@ -6,8 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/scottkgregory/tonic/pkg/api"
 	tonicErrors "github.com/scottkgregory/tonic/pkg/api/errors"
-	"github.com/scottkgregory/tonic/pkg/constants"
-	"github.com/scottkgregory/tonic/pkg/models"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
 	"github.com/scottkgregory/tonic/pkg/services"
 )
 
@@ -17,19 +16,11 @@ func HasAny(required ...string) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		var user *models.User
-		u, ok := c.Get(constants.UserKey)
+		user, ok := dependencies.GetUser(c)
 		if !ok {
 			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 			c.Abort()
 			return
-		} else {
-			user, ok = u.(*models.User)
-			if !ok {
-				api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
-				c.Abort()
-				return
-			}
 		}
 
 		perms := formatPerms(user.Permissions)
@@ -49,19 +40,11 @@ func HasAll(required ...string) gin.HandlerFunc {
 	}
 
 	return func(c *gin.Context) {
-		var user *models.User
-		u, ok := c.Get(constants.UserKey)
+		user, ok := dependencies.GetUser(c)
 		if !ok {
 			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
 			c.Abort()
 			return
-		} else {
-			user, ok = u.(*models.User)
-			if !ok {
-				api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
-				c.Abort()
-				return
-			}
 		}
 
 		v := 0

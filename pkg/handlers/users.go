@@ -83,3 +83,16 @@ func (h *UserHandler) ListUsers() gin.HandlerFunc {
 		api.SmartResponse(c, out, err)
 	}
 }
+
+func (h *UserHandler) Me() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, ok := dependencies.GetUser(c)
+		if !ok {
+			api.UnauthorisedResponse(c)
+			return
+		}
+
+		c.Get(constants.UserKey)
+		api.SmartResponse(c, user, nil)
+	}
+}
