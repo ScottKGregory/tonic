@@ -58,9 +58,9 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 		users := api.Group("/users")
 		{
 			users.POST("/", middleware.HasAny("users:create:*"), userHandler.CreateUser())
-			users.PUT(id(), middleware.HasAny(id("users:update:")), userHandler.UpdateUser())
-			users.DELETE(id(), middleware.HasAny(id("users:delete:")), userHandler.DeleteUser())
-			users.GET(id(), middleware.HasAny(id("users:get:")), userHandler.GetUser())
+			users.PUT(IDPath(), middleware.HasAny(IDPath("users:update:")), userHandler.UpdateUser())
+			users.DELETE(IDPath(), middleware.HasAny(IDPath("users:delete:")), userHandler.DeleteUser())
+			users.GET(IDPath(), middleware.HasAny(IDPath("users:get:")), userHandler.GetUser())
 			users.GET("/", middleware.HasAny("users:list:*"), userHandler.ListUsers())
 		}
 
@@ -91,7 +91,8 @@ func GetUser(c *gin.Context) (user *models.User, ok bool) {
 	return dependencies.GetUser(c)
 }
 
-func id(path ...string) string {
+// IDPath will add the standard ID param to the given path
+func IDPath(path ...string) string {
 	p := ""
 	if len(path) > 0 {
 		p = path[0]
