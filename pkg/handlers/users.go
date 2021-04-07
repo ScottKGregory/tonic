@@ -18,6 +18,17 @@ func NewUserHandler(backend backends.Backend) *UserHandler {
 	return &UserHandler{backend}
 }
 
+// CreateUser creates a user using the configured backend
+// @Summary Create a single user
+// @Description Creates a single user
+// @ID create-user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.ResponseModel{data=models.User}
+// @Failure 400 {object} api.ResponseModel
+// @Failure 500 {object} api.ResponseModel
+// @Router /users [post]
 func (h *UserHandler) CreateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -36,6 +47,18 @@ func (h *UserHandler) CreateUser() gin.HandlerFunc {
 	}
 }
 
+// UpdateUser updates a user using the configured backend
+// @Summary Update a single user
+// @Description Updates the supplied user
+// @ID update-user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} api.ResponseModel{data=models.User}
+// @Failure 400 {object} api.ResponseModel
+// @Failure 500 {object} api.ResponseModel
+// @Router /users/{id} [put]
 func (h *UserHandler) UpdateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -54,6 +77,18 @@ func (h *UserHandler) UpdateUser() gin.HandlerFunc {
 	}
 }
 
+// DeleteUser deletes a user using the configured backend
+// @Summary Delete a single user
+// @Description Deletes a single user
+// @ID delete-user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} api.ResponseModel
+// @Failure 400 {object} api.ResponseModel
+// @Failure 500 {object} api.ResponseModel
+// @Router /users/{id} [delete]
 func (h *UserHandler) DeleteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -64,6 +99,18 @@ func (h *UserHandler) DeleteUser() gin.HandlerFunc {
 	}
 }
 
+// GetUser gets a single user using the configured backend
+// @Summary Get a single user
+// @Description Gets a user by ID
+// @ID get-user-by-id
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} api.ResponseModel{data=models.User}
+// @Failure 400 {object} api.ResponseModel
+// @Failure 500 {object} api.ResponseModel
+// @Router /users/{id} [get]
 func (h *UserHandler) GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -74,6 +121,17 @@ func (h *UserHandler) GetUser() gin.HandlerFunc {
 	}
 }
 
+// ListUsers lists all users using the configured backend
+// @Summary List all registered users
+// @Description Lists all registered users
+// @ID list-users
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.ResponseModel{data=[]models.User}
+// @Failure 400 {object} api.ResponseModel
+// @Failure 500 {object} api.ResponseModel
+// @Router /users [get]
 func (h *UserHandler) ListUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -84,6 +142,17 @@ func (h *UserHandler) ListUsers() gin.HandlerFunc {
 	}
 }
 
+// Me returns the currently authed user
+// @Summary get the currently authed user
+// @Description Gets the details of the currently authed user
+// @ID me
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.ResponseModel{data=models.User}
+// @Failure 400 {object} api.ResponseModel
+// @Failure 500 {object} api.ResponseModel
+// @Router /me [get]
 func (h *UserHandler) Me() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, ok := dependencies.GetUser(c)

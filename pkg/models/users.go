@@ -4,7 +4,7 @@ type User struct {
 	Claims      StandardClaims `json:"claims"`
 	Permissions []string       `json:"permissions"`
 	Deleted     bool           `json:"deleted"`
-}
+} // @name User
 
 type StandardClaims struct {
 	Subject             string `json:"sub"`
@@ -34,4 +34,4 @@ type StandardClaims struct {
 		Country       string `json:"country"`
 	} `json:"address"`
 	UpdatedAt int64 `json:"updated_at"`
-}
+} // @name StandardClaims
