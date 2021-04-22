@@ -10,7 +10,7 @@ require (
 	github.com/lestrrat-go/jwx v1.1.7
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
 	github.com/rs/zerolog v1.21.0
-	github.com/russross/blackfriday/v2 v2.0.1
+	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/scottkgregory/mamba v0.2.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
