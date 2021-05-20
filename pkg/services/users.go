@@ -82,7 +82,7 @@ func (s *UserService) GetUser(sub string) (out *models.User, err error) {
 }
 
 // ListUsers uses the configured backend to list all users
-func (s *UserService) ListUsers() (out *[]models.User, err error) {
+func (s *UserService) ListUsers() (out []*models.User, err error) {
 	return s.backend.ListUsers()
 }
 

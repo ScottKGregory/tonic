@@ -74,8 +74,8 @@ func (m Mongo) GetUser(sub string) (out *models.User, err error) {
 	return out, err
 }
 
-func (m Mongo) ListUsers() (out *[]models.User, err error) {
-	out = &[]models.User{}
+func (m Mongo) ListUsers() (out []*models.User, err error) {
+	out = []*models.User{}
 	client, ctx, cancel := m.connect()
 	defer cancel()
 

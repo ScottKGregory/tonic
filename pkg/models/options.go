@@ -50,4 +50,5 @@ type Backend struct {
 	ConnectionString string `config:"mongodb://127.0.0.1:27017, The backends connection string"`
 	UserCollection   string `config:"users, The backends user collection"`
 	Database         string `config:"tonic, The backends database to use"`
+	InMemory         bool   `config:"false, Enable to use an in memory database"`
 }

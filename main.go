@@ -22,7 +22,12 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	router.Use(middleware.Zerologger(opt.Log))
 	log := dependencies.GetLogger()
 
-	backend := backends.NewMongoBackend(&opt.Backend)
+	var backend backends.Backend
+	if opt.Backend.InMemory {
+		backend = backends.NewMemoryBackend(&opt.Backend)
+	} else {
+		backend = backends.NewMongoBackend(&opt.Backend)
+	}
 	homeHandler := handlers.NewHomeHandler(opt.PageHeader)
 	errorHandler := handlers.NewErrorHandler(opt.PageHeader)
 	probeHandler := handlers.NewProbeHandler(backend)
