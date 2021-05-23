@@ -17,7 +17,7 @@ const (
 	bearerPrefix = "bearer "
 )
 
-func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *models.JWT, authOptions *models.Auth) gin.HandlerFunc {
+func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *models.JWT, authOptions *models.Auth, cancel bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, backend)
@@ -28,12 +28,12 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 		token, err := c.Cookie(cookieOptions.Name)
 		if err != nil {
 			if header == "" {
-				retErr(c, cookieOptions)
+				retErr(c, cookieOptions, cancel)
 				return
 			}
 
 			if !strings.HasPrefix(strings.ToLower(header), bearerPrefix) {
-				retErr(c, cookieOptions)
+				retErr(c, cookieOptions, cancel)
 				return
 			}
 
@@ -45,7 +45,7 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 
 		valid, validToken := authService.Verify(token)
 		if !valid {
-			retErr(c, cookieOptions)
+			retErr(c, cookieOptions, cancel)
 			return
 		}
 
@@ -60,7 +60,7 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 			l.Debug().Msg("Renewing auth")
 			newToken, err := authService.Token(subject)
 			if err != nil {
-				retErr(c, cookieOptions)
+				retErr(c, cookieOptions, cancel)
 				return
 			}
 
@@ -77,7 +77,7 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 
 		user, err := userService.GetUser(subject)
 		if err != nil {
-			retErr(c, cookieOptions)
+			retErr(c, cookieOptions, cancel)
 			return
 		}
 
@@ -89,8 +89,13 @@ func Authed(backend backends.Backend, cookieOptions *models.Cookie, jwtOptions *
 	}
 }
 
-func retErr(c *gin.Context, cookieOptions *models.Cookie) {
-	c.SetCookie(cookieOptions.Name, "", -1, cookieOptions.Path, cookieOptions.Domain, cookieOptions.Secure, cookieOptions.HttpOnly)
-	api.UnauthorisedResponse(c)
-	c.Abort()
+func retErr(c *gin.Context, cookieOptions *models.Cookie, cancel bool) {
+	if cancel {
+		c.SetCookie(cookieOptions.Name, "", -1, cookieOptions.Path, cookieOptions.Domain, cookieOptions.Secure, cookieOptions.HttpOnly)
+		api.UnauthorisedResponse(c)
+		c.Abort()
+	}
+
+	c.Set(constants.Authed, false)
+	c.Next()
 }

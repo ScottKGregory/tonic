@@ -35,6 +35,8 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	authHandler := handlers.NewAuthHandler(backend, &opt.Auth)
 	permissionHandler := handlers.NewPermissionsHandler()
 
+	router.Use(middleware.Authed(backend, &opt.Cookie, &opt.JWT, &opt.Auth, false))
+
 	if !opt.DisableHomepage {
 		router.GET("/", homeHandler.Home())
 	}
@@ -58,7 +60,7 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	}
 
 	api := router.Group("/api")
-	api.Use(middleware.Authed(backend, &opt.Cookie, &opt.JWT, &opt.Auth))
+	api.Use(middleware.Authed(backend, &opt.Cookie, &opt.JWT, &opt.Auth, true))
 	{
 		users := api.Group("/users")
 		{
