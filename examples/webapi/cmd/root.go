@@ -23,6 +23,11 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		// priv, pub := helpers.GenerateRsaKeyPair()
+		// fmt.Println(helpers.ExportPrivateKey(priv))
+		// fmt.Println(helpers.ExportPublicKey(pub))
+
+		cfg.Tonic.Log.IgnoreRoutes = []string{"/health", "/liveliness", "/readiness"}
 		r, _, err := tonic.Init(cfg.Tonic)
 		if err != nil {
 			panic(err)

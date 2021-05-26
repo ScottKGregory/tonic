@@ -12,8 +12,9 @@ type Options struct {
 }
 
 type Log struct {
-	JSON bool   `config:"false, Whether to log JSON, true, j"`
-	Tag  string `config:"tonic, The log tag to use, true, t"`
+	JSON         bool   `config:"false, Whether to log JSON, true, j"`
+	Tag          string `config:"tonic, The log tag to use, true, t"`
+	IgnoreRoutes []string
 }
 
 type Auth struct {

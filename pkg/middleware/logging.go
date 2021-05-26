@@ -28,7 +28,9 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 		t := time.Now()
 
 		l := populatedLogger(c, rid)
-		l.Info().Msg("Requested")
+		if !containsStr(options.IgnoreRoutes, c.FullPath()) {
+			l.Info().Msg("Requested")
+		}
 
 		c.Set(constants.LoggerKey, l)
 		c.Set(constants.RequestIDKey, rid)
@@ -45,10 +47,12 @@ func Zerologger(options models.Log) gin.HandlerFunc {
 			ll = l.Error()
 		}
 
-		ll.
-			Int("status", statusCode).
-			Dur("duration-ns", time.Duration(time.Since(t).Nanoseconds())).
-			Msg("Returned")
+		if !containsStr(options.IgnoreRoutes, c.FullPath()) {
+			ll.
+				Int("status", statusCode).
+				Dur("duration-ns", time.Duration(time.Since(t).Nanoseconds())).
+				Msg("Returned")
+		}
 	}
 }
 
@@ -62,4 +66,14 @@ func populatedLogger(c *gin.Context, rid string) *zerolog.Logger {
 		Logger()
 
 	return &l
+}
+
+func containsStr(arr []string, s string) bool {
+	for _, a := range arr {
+		if a == s {
+			return true
+		}
+	}
+
+	return false
 }
