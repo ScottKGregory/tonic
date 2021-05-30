@@ -5,7 +5,7 @@ import (
 
 	"github.com/scottkgregory/mamba"
 	"github.com/scottkgregory/tonic"
-	"github.com/scottkgregory/tonic/pkg/models"
+	"github.com/scottkgregory/tonic/internal/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
