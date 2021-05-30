@@ -6,8 +6,8 @@ import (
 	"github.com/scottkgregory/tonic/internal/backends"
 	"github.com/scottkgregory/tonic/internal/constants"
 	"github.com/scottkgregory/tonic/internal/dependencies"
-	"github.com/scottkgregory/tonic/internal/models"
 	"github.com/scottkgregory/tonic/internal/services"
+	"github.com/scottkgregory/tonic/pkg/models"
 )
 
 type UserHandler struct {

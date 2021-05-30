@@ -1,6 +1,6 @@
 package backends
 
-import "github.com/scottkgregory/tonic/internal/models"
+import "github.com/scottkgregory/tonic/pkg/models"
 
 type Backend interface {
 	CreateUser(in *models.User) (out *models.User, err error)

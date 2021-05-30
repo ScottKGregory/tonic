@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/scottkgregory/tonic/internal/models"
+	pkgModels "github.com/scottkgregory/tonic/pkg/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
@@ -37,7 +38,7 @@ func (m Mongo) connect() (*mongo.Client, context.Context, context.CancelFunc) {
 	return client, ctx, cancel
 }
 
-func (m Mongo) CreateUser(in *models.User) (out *models.User, err error) {
+func (m Mongo) CreateUser(in *pkgModels.User) (out *pkgModels.User, err error) {
 	client, ctx, cancel := m.connect()
 	defer cancel()
 
@@ -46,7 +47,7 @@ func (m Mongo) CreateUser(in *models.User) (out *models.User, err error) {
 	return in, err
 }
 
-func (m Mongo) UpdateUser(in *models.User) (out *models.User, err error) {
+func (m Mongo) UpdateUser(in *pkgModels.User) (out *pkgModels.User, err error) {
 	client, ctx, cancel := m.connect()
 	defer cancel()
 
@@ -60,8 +61,8 @@ func (m Mongo) UpdateUser(in *models.User) (out *models.User, err error) {
 	return in, err
 }
 
-func (m Mongo) GetUser(sub string) (out *models.User, err error) {
-	out = &models.User{}
+func (m Mongo) GetUser(sub string) (out *pkgModels.User, err error) {
+	out = &pkgModels.User{}
 	client, ctx, cancel := m.connect()
 	defer cancel()
 
@@ -74,8 +75,8 @@ func (m Mongo) GetUser(sub string) (out *models.User, err error) {
 	return out, err
 }
 
-func (m Mongo) ListUsers() (out []*models.User, err error) {
-	out = []*models.User{}
+func (m Mongo) ListUsers() (out []*pkgModels.User, err error) {
+	out = []*pkgModels.User{}
 	client, ctx, cancel := m.connect()
 	defer cancel()
 

@@ -16,6 +16,7 @@ import (
 	"github.com/scottkgregory/tonic/internal/constants"
 	"github.com/scottkgregory/tonic/internal/helpers"
 	"github.com/scottkgregory/tonic/internal/models"
+	pkgModels "github.com/scottkgregory/tonic/pkg/models"
 	"golang.org/x/oauth2"
 )
 
@@ -119,8 +120,8 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 
 	um, err := s.userService.GetUser(userInfo.Subject)
 	if errors.Is(err, &tonicErrors.NotFoundErr{}) {
-		um, err = s.userService.CreateUser(&models.User{
-			Claims: models.StandardClaims{
+		um, err = s.userService.CreateUser(&pkgModels.User{
+			Claims: pkgModels.StandardClaims{
 				Subject: userInfo.Subject,
 			},
 		})
@@ -130,7 +131,7 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 		return "", err
 	}
 
-	um.Claims = models.StandardClaims{
+	um.Claims = pkgModels.StandardClaims{
 		Subject:       userInfo.Subject,
 		Profile:       userInfo.Profile,
 		Email:         userInfo.Email,
@@ -165,7 +166,7 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 }
 
 // Token generates an auth token for the given user
-func (s *AuthService) Token(subject string) (token *models.Token, err error) {
+func (s *AuthService) Token(subject string) (token *pkgModels.Token, err error) {
 	if helpers.IsEmptyOrWhitespace(subject) {
 		return nil, tonicErrors.NewUnauthorisedError()
 	}
@@ -185,7 +186,7 @@ func (s *AuthService) Token(subject string) (token *models.Token, err error) {
 		return nil, err
 	}
 
-	return &models.Token{
+	return &pkgModels.Token{
 		Token:  string(signed),
 		Expiry: oidcTok.Expiration(),
 	}, nil
@@ -205,7 +206,7 @@ func (s *AuthService) Verify(tok string) (bool, jwt.Token) {
 	return true, token
 }
 
-func (s *AuthService) createToken(user *models.User) (token openid.Token, err error) {
+func (s *AuthService) createToken(user *pkgModels.User) (token openid.Token, err error) {
 	t := openid.New()
 
 	if err := t.Set(jwt.IssuerKey, s.options.JWT.Issuer); err != nil {

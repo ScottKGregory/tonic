@@ -11,9 +11,10 @@ import (
 	"github.com/scottkgregory/tonic/internal/backends"
 	"github.com/scottkgregory/tonic/internal/constants"
 	"github.com/scottkgregory/tonic/internal/dependencies"
-	"github.com/scottkgregory/tonic/internal/handlers"
 	"github.com/scottkgregory/tonic/internal/middleware"
 	"github.com/scottkgregory/tonic/internal/models"
+	"github.com/scottkgregory/tonic/pkg/handlers"
+	pkgModels "github.com/scottkgregory/tonic/pkg/models"
 )
 
 // Init sets up tonic
@@ -96,7 +97,7 @@ func GetLogger(c ...*gin.Context) *zerolog.Logger {
 }
 
 // GetUser returns the current user from context
-func GetUser(c *gin.Context) (user *models.User, ok bool) {
+func GetUser(c *gin.Context) (user *pkgModels.User, ok bool) {
 	return dependencies.GetUser(c)
 }
 
@@ -191,6 +192,8 @@ func HasAll(required ...string) gin.HandlerFunc {
 }
 
 // Surface API responses
+
+type ResponseModel = api.ResponseModel
 
 //SmartResponse returns a response object appropriate to the supplied error
 func SmartResponse(c *gin.Context, data interface{}, err error) {
