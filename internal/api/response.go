@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	tonicErrors "github.com/scottkgregory/tonic/internal/api/errors"
+	"github.com/scottkgregory/tonic/internal/dependencies"
 )
 
 type ResponseModel struct {
@@ -85,6 +86,7 @@ func ValidationErrorResponse(c *gin.Context, errs ...*tonicErrors.ValidationErr)
 }
 
 func ErrorResponse(c *gin.Context, code int, err error, validation ...map[string]string) {
+	dependencies.GetLogger(c).Err(err).Msg("Error processing request")
 	var val map[string]string
 	if len(validation) == 1 {
 		val = validation[0]
