@@ -88,7 +88,7 @@ func (m Mongo) ListUsers() (out []*pkgModels.User, err error) {
 		return out, err
 	}
 
-	err = curs.All(ctx, out)
+	err = curs.All(ctx, &out)
 	return out, err
 }
 

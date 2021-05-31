@@ -10,6 +10,16 @@ import (
 	"github.com/scottkgregory/tonic/pkg/models"
 )
 
+type UserResponse struct {
+	api.ResponseModel
+	Data models.User
+} //@Name UserResponse
+
+type ListUserResponse struct {
+	api.ResponseModel
+	Data models.User
+} //@Name ListUserResponse
+
 type UserHandler struct {
 	backend backends.Backend
 }
@@ -25,10 +35,10 @@ func NewUserHandler(backend backends.Backend) *UserHandler {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Success 200 {object} api.ResponseModel{data=models.User}
-// @Failure 400 {object} api.ResponseModel
-// @Failure 500 {object} api.ResponseModel
-// @Router /users [post]
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} UserResponse
+// @Failure 500 {object} UserResponse
+// @Router /api/users [post]
 func (h *UserHandler) CreateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -55,10 +65,10 @@ func (h *UserHandler) CreateUser() gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {object} api.ResponseModel{data=models.User}
-// @Failure 400 {object} api.ResponseModel
-// @Failure 500 {object} api.ResponseModel
-// @Router /users/{id} [put]
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} UserResponse
+// @Failure 500 {object} UserResponse
+// @Router /api/users/{id} [put]
 func (h *UserHandler) UpdateUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -85,10 +95,10 @@ func (h *UserHandler) UpdateUser() gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {object} api.ResponseModel
-// @Failure 400 {object} api.ResponseModel
-// @Failure 500 {object} api.ResponseModel
-// @Router /users/{id} [delete]
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} UserResponse
+// @Failure 500 {object} UserResponse
+// @Router /api/users/{id} [delete]
 func (h *UserHandler) DeleteUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -107,10 +117,10 @@ func (h *UserHandler) DeleteUser() gin.HandlerFunc {
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
-// @Success 200 {object} api.ResponseModel{data=models.User}
-// @Failure 400 {object} api.ResponseModel
-// @Failure 500 {object} api.ResponseModel
-// @Router /users/{id} [get]
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} UserResponse
+// @Failure 500 {object} UserResponse
+// @Router /api/users/{id} [get]
 func (h *UserHandler) GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -128,10 +138,10 @@ func (h *UserHandler) GetUser() gin.HandlerFunc {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Success 200 {object} api.ResponseModel{data=[]models.User}
-// @Failure 400 {object} api.ResponseModel
-// @Failure 500 {object} api.ResponseModel
-// @Router /users [get]
+// @Success 200 {object} ListUserResponse
+// @Failure 400 {object} ListUserResponse
+// @Failure 500 {object} ListUserResponse
+// @Router /api/users [get]
 func (h *UserHandler) ListUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
@@ -149,9 +159,9 @@ func (h *UserHandler) ListUsers() gin.HandlerFunc {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Success 200 {object} api.ResponseModel{data=models.User}
-// @Failure 400 {object} api.ResponseModel
-// @Failure 500 {object} api.ResponseModel
+// @Success 200 {object} UserResponse
+// @Failure 400 {object} UserResponse
+// @Failure 500 {object} UserResponse
 // @Router /me [get]
 func (h *UserHandler) Me() gin.HandlerFunc {
 	return func(c *gin.Context) {
