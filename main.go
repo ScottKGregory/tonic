@@ -117,7 +117,7 @@ func IDPath(path ...string) string {
 
 // GetID gets the id from the path, setup using tonic.IDPath
 func GetID(c *gin.Context) (id string) {
-	return c.GetString(constants.IDParam)
+	return c.Param(constants.IDParam)
 }
 
 // Surface errors
