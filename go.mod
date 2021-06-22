@@ -15,7 +15,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.8.0
 	go.mongodb.org/mongo-driver v1.5.3
-	golang.org/x/oauth2 v0.0.0-20210615190721-d04028783cf1
+	golang.org/x/oauth2 v0.0.0-20210622165204-14747e66f690
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 )
