@@ -13,7 +13,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/scottkgregory/mamba v0.2.0
 	github.com/spf13/cobra v1.1.3
-	github.com/spf13/viper v1.8.0
+	github.com/spf13/viper v1.8.1
 	go.mongodb.org/mongo-driver v1.5.3
 	golang.org/x/oauth2 v0.0.0-20210622215436-a8dc77f794b6
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
