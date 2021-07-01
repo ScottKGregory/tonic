@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.23.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/scottkgregory/mamba v0.2.0
-	github.com/spf13/cobra v1.1.3
+	github.com/spf13/cobra v1.2.0
 	github.com/spf13/viper v1.8.1
 	go.mongodb.org/mongo-driver v1.5.3
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
