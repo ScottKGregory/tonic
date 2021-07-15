@@ -317,6 +317,8 @@ github.com/lestrrat-go/jwx v1.2.2 h1:sH9GeolQn9s3JyNbeEOXXPTko2fD4BwAMWXLYvcEl2k
 github.com/lestrrat-go/jwx v1.2.2/go.mod h1:Tg2uP7bpxEHUDtuWjap/PxroJ4okxGzkQznXiG+a5Dc=
 github.com/lestrrat-go/jwx v1.2.3 h1:XqKIAZvKAWbQldNu3DetfoaPyB3Y6VllCajKXjbqBu8=
 github.com/lestrrat-go/jwx v1.2.3/go.mod h1:CAe9Z479rJwIYDR2DqWwMm9c+gCNoYB6+0wBxPkEh0Q=
+github.com/lestrrat-go/jwx v1.2.4 h1:EuVGI/hPUSRstxWpWjVcklOe1odJLVrFY9zt4k1pa30=
+github.com/lestrrat-go/jwx v1.2.4/go.mod h1:CAe9Z479rJwIYDR2DqWwMm9c+gCNoYB6+0wBxPkEh0Q=
 github.com/lestrrat-go/option v0.0.0-20210103042652-6f1ecfceda35/go.mod h1:5ZHFbivi4xwXxhxY9XHDe2FHo6/Z7WWmtT7T5nBBp3I=
 github.com/lestrrat-go/option v1.0.0 h1:WqAWL8kh8VcSoD6xjSH34/1m8yxluXQbDeKNfvFeEO4=
 github.com/lestrrat-go/option v1.0.0/go.mod h1:5ZHFbivi4xwXxhxY9XHDe2FHo6/Z7WWmtT7T5nBBp3I=
