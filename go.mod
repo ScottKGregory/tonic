@@ -6,7 +6,7 @@ require (
 	github.com/Depado/bfchroma v1.3.0
 	github.com/alecthomas/chroma v0.9.2
 	github.com/coreos/go-oidc v2.2.1+incompatible
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.3
 	github.com/lestrrat-go/jwx v1.2.4
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
 	github.com/rs/zerolog v1.23.0
