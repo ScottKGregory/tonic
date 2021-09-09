@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/lestrrat-go/jwx v1.2.6
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
-	github.com/rs/zerolog v1.24.0
+	github.com/rs/zerolog v1.25.0
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/scottkgregory/mamba v0.2.0
 	github.com/spf13/cobra v1.2.1
