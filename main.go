@@ -234,3 +234,6 @@ func ValidationErrorResponse(c *gin.Context, errs ...*ValidationErr) {
 func ErrorResponse(c *gin.Context, code int, err error, validation ...map[string]string) {
 	api.ErrorResponse(c, code, err, validation...)
 }
+
+//GlobalKey is a const for global validation errors
+const GlobalKey = constants.GlobalKey

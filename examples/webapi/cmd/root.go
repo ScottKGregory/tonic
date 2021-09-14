@@ -3,8 +3,11 @@ package cmd
 import (
 	"fmt"
 
+	_ "github.com/rs/zerolog"
+	_ "github.com/rs/zerolog/log"
 	"github.com/scottkgregory/mamba"
 	"github.com/scottkgregory/tonic"
+	"github.com/scottkgregory/tonic/internal/helpers"
 	"github.com/scottkgregory/tonic/internal/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -13,6 +16,7 @@ import (
 type AppConfig struct {
 	ConfigFile string         `config:"./examples/webapi/config.yaml, The yaml config file to read, true, c"`
 	Port       int            `config:"8080, The port to host the site on, false, p"`
+	CertGen    bool           `config:"false, Generate new JWT certificates, false, g"`
 	Tonic      models.Options `config:""`
 }
 
@@ -23,9 +27,12 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// priv, pub := helpers.GenerateRsaKeyPair()
-		// fmt.Println(helpers.ExportPrivateKey(priv))
-		// fmt.Println(helpers.ExportPublicKey(pub))
+		if cfg.CertGen {
+			priv, pub := helpers.GenerateRsaKeyPair()
+			fmt.Println(helpers.ExportPrivateKey(priv))
+			fmt.Println(helpers.ExportPublicKey(pub))
+			return
+		}
 
 		cfg.Tonic.Log.IgnoreRoutes = []string{"/health", "/liveliness", "/readiness"}
 		r, _, err := tonic.Init(cfg.Tonic)
@@ -33,9 +40,12 @@ var rootCmd = &cobra.Command{
 			panic(err)
 		}
 
-		// logger := helpers.GetLogger()
-		// logger.Info().Msg("Starting listener")
-		r.Run(fmt.Sprintf(":%d", cfg.Port))
+		logger := tonic.GetLogger()
+		logger.Info().Msg("Starting listener")
+		err = r.Run(fmt.Sprintf(":%d", cfg.Port))
+		if err != nil {
+			logger.Fatal().Err(err).Msg("Error starting listener")
+		}
 	},
 }
 
