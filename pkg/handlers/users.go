@@ -162,7 +162,7 @@ func (h *UserHandler) ListUsers() gin.HandlerFunc {
 // @Success 200 {object} UserResponse
 // @Failure 400 {object} UserResponse
 // @Failure 500 {object} UserResponse
-// @Router /me [get]
+// @Router /api/me [get]
 func (h *UserHandler) Me() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, ok := dependencies.GetUser(c)
