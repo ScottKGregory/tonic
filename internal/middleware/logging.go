@@ -19,6 +19,14 @@ func Zerologger(options models.LogOptions) gin.HandlerFunc {
 	}
 	dependencies.Tag = options.Tag
 
+	level, err := zerolog.ParseLevel(options.Level)
+	if err != nil {
+		log.Error().Err(err).Msg("Error parsing log level, defaulting to trace")
+		log.Logger = log.Level(zerolog.TraceLevel)
+	} else {
+		log.Logger = log.Level(level)
+	}
+
 	return func(c *gin.Context) {
 		rid := c.Request.Header.Get("x-request-id")
 		if rid == "" {

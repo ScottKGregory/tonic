@@ -15,6 +15,7 @@ type Options struct {
 type LogOptions struct {
 	JSON         bool   `config:"false, Whether to log JSON, true, j"`
 	Tag          string `config:"tonic, The log tag to use, true, t"`
+	Level        string `config:"trace, The log level to use, true, l"`
 	IgnoreRoutes []string
 }
 
