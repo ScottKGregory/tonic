@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	_ "github.com/rs/zerolog"
 	_ "github.com/rs/zerolog/log"
@@ -29,8 +30,11 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if cfg.CertGen {
 			priv, pub := helpers.GenerateRsaKeyPair()
-			fmt.Println(helpers.ExportPrivateKey(priv))
-			fmt.Println(helpers.ExportPublicKey(pub))
+			fmt.Println("Private")
+			fmt.Println(strings.ReplaceAll(helpers.ExportPrivateKey(priv), "\n", "\\n"))
+			fmt.Println("Public")
+			publicStr, _ := helpers.ExportPublicKey(pub)
+			fmt.Println(strings.ReplaceAll(publicStr, "\n", "\\n"))
 			return
 		}
 

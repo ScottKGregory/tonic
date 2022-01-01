@@ -54,7 +54,7 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 		permService := services.NewPermissionsService(log, h.permOptions)
 		authService := services.NewAuthService(log, userService, permService, h.options)
 
-		token, err := authService.Callback(
+		token, err := authService.Callback(c,
 			c.Request.Context(),
 			"",
 			c.Query("state"),
@@ -106,7 +106,7 @@ func (h *AuthHandler) Token() gin.HandlerFunc {
 		permService := services.NewPermissionsService(log, h.permOptions)
 		authService := services.NewAuthService(log, userService, permService, h.options)
 
-		token, err := authService.Token(c.GetString(constants.SubjectKey))
+		token, err := authService.Token(c.Request.Context(), c.GetString(constants.SubjectKey))
 		api.SmartResponse(c, token, err)
 	}
 }

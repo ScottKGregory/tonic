@@ -1,6 +1,8 @@
 package services
 
 import (
+	"context"
+
 	"github.com/rs/zerolog"
 	"github.com/scottkgregory/tonic/internal/api/errors"
 	"github.com/scottkgregory/tonic/internal/backends"
@@ -20,17 +22,17 @@ func NewUserService(log *zerolog.Logger, backend backends.Backend) *UserService 
 }
 
 // CreateUser uses the configured backend to create the supplied user after having validted it
-func (s *UserService) CreateUser(in *models.User) (out *models.User, err error) {
+func (s *UserService) CreateUser(ctx context.Context, in *models.User) (out *models.User, err error) {
 	valid, messages := s.isValidUser(in)
 	if !valid {
 		return out, errors.NewValidationError(messages)
 	}
 
-	return s.backend.CreateUser(in)
+	return s.backend.CreateUser(ctx, in)
 }
 
 // CreateUser uses the configured backend to update the supplied user after having validted it
-func (s *UserService) UpdateUser(in *models.User, sub string) (out *models.User, err error) {
+func (s *UserService) UpdateUser(ctx context.Context, in *models.User, sub string) (out *models.User, err error) {
 	valid, messages := s.isValidUser(in)
 	if !valid {
 		return out, errors.NewValidationError(messages)
@@ -41,7 +43,7 @@ func (s *UserService) UpdateUser(in *models.User, sub string) (out *models.User,
 		return out, errors.NewValidationError(messages)
 	}
 
-	out, err = s.backend.UpdateUser(in)
+	out, err = s.backend.UpdateUser(ctx, in)
 	if err != nil {
 		return out, err
 	}
@@ -55,21 +57,21 @@ func (s *UserService) UpdateUser(in *models.User, sub string) (out *models.User,
 }
 
 // DeleteUser uses the configured backend to mark the user as deleted
-func (s *UserService) DeleteUser(sub string) error {
-	user, err := s.GetUser(sub)
+func (s *UserService) DeleteUser(ctx context.Context, sub string) error {
+	user, err := s.GetUser(ctx, sub)
 	if err != nil {
 		return err
 	}
 
 	user.Deleted = true
 
-	_, err = s.UpdateUser(user, sub)
+	_, err = s.UpdateUser(ctx, user, sub)
 	return err
 }
 
 // GetUser uses the configured backend to get a single user based on it's subject claim
-func (s *UserService) GetUser(sub string) (out *models.User, err error) {
-	out, err = s.backend.GetUser(sub)
+func (s *UserService) GetUser(ctx context.Context, sub string) (out *models.User, err error) {
+	out, err = s.backend.GetUser(ctx, sub)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +84,8 @@ func (s *UserService) GetUser(sub string) (out *models.User, err error) {
 }
 
 // ListUsers uses the configured backend to list all users
-func (s *UserService) ListUsers() (out []*models.User, err error) {
-	return s.backend.ListUsers()
+func (s *UserService) ListUsers(ctx context.Context) (out []*models.User, err error) {
+	return s.backend.ListUsers(ctx)
 }
 
 func (s *UserService) isValidUser(user *models.User) (valid bool, messages map[string]string) {

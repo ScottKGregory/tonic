@@ -1,6 +1,7 @@
 package tonic
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -26,11 +27,16 @@ func Init(opt models.Options) (*gin.Engine, *gin.RouterGroup, error) {
 	log := dependencies.GetLogger()
 
 	var backend backends.Backend
+	var err error
 	if opt.Backend.InMemory {
 		backend = backends.NewMemoryBackend(&opt.Backend)
 	} else {
-		backend = backends.NewMongoBackend(&opt.Backend)
+		backend, err = backends.NewMongoBackend(context.Background(), &opt.Backend)
 	}
+	if err != nil {
+		return nil, nil, err
+	}
+
 	homeHandler := handlers.NewHomeHandler(opt.PageHeader)
 	errorHandler := handlers.NewErrorHandler(opt.PageHeader)
 	probeHandler := handlers.NewProbeHandler(backend)

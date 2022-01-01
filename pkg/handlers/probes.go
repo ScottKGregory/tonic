@@ -34,7 +34,7 @@ func NewProbeHandler(backend backends.Backend) *ProbeHandler {
 // @Router /health [get]
 func (h *ProbeHandler) Health() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := h.backend.Ping(); err != nil {
+		if err := h.backend.Ping(c.Request.Context()); err != nil {
 			api.ErrorResponse(c, http.StatusInternalServerError, errors.New("Error connecting to backend"))
 			return
 		}
@@ -55,7 +55,7 @@ func (h *ProbeHandler) Health() gin.HandlerFunc {
 // @Router /liveliness [get]
 func (h *ProbeHandler) Liveliness() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := h.backend.Ping(); err != nil {
+		if err := h.backend.Ping(c.Request.Context()); err != nil {
 			api.ErrorResponse(c, http.StatusInternalServerError, errors.New("Error connecting to backend"))
 			return
 		}
@@ -76,7 +76,7 @@ func (h *ProbeHandler) Liveliness() gin.HandlerFunc {
 // @Router /readiness [get]
 func (h *ProbeHandler) Readiness() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if err := h.backend.Ping(); err != nil {
+		if err := h.backend.Ping(c.Request.Context()); err != nil {
 			api.ErrorResponse(c, http.StatusInternalServerError, errors.New("Error connecting to backend"))
 			return
 		}

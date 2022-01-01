@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc"
+	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/jwa"
 	"github.com/lestrrat-go/jwx/jwe"
 	"github.com/lestrrat-go/jwx/jwt"
@@ -22,15 +23,16 @@ import (
 
 // AuthService contains auth related operations
 type AuthService struct {
-	state       string
-	log         *zerolog.Logger
-	userService *UserService
-	permService *PermissionsService
-	options     *models.AuthOptions
-	authConfig  *oauth2.Config
-	provider    *oidc.Provider
-	privateKey  *rsa.PrivateKey
-	publicKey   *rsa.PublicKey
+	state              string
+	log                *zerolog.Logger
+	userService        *UserService
+	permService        *PermissionsService
+	options            *models.AuthOptions
+	authConfig         *oauth2.Config
+	provider           *oidc.Provider
+	privateKey         *rsa.PrivateKey
+	publicKey          *rsa.PublicKey
+	postUserCreateHook pkgModels.UserHook
 }
 
 // NewAuthService configures a new instance of AuthService
@@ -75,6 +77,7 @@ func NewAuthService(log *zerolog.Logger, userService *UserService, permService *
 		provider,
 		privateKey,
 		publicKey,
+		options.PostUserCreateHook,
 	}
 }
 
@@ -91,7 +94,7 @@ func (s *AuthService) Login(provider string) (redirect string, err error) {
 }
 
 // Callback processes the OIDC flow return values
-func (s *AuthService) Callback(ctx context.Context, provider, state, code, callbackErr, errDescription string) (token string, err error) {
+func (s *AuthService) Callback(c *gin.Context, ctx context.Context, provider, state, code, callbackErr, errDescription string) (token string, err error) {
 	if helpers.IsEmptyOrWhitespace(code) ||
 		helpers.IsEmptyOrWhitespace(state) ||
 		!helpers.IsEmptyOrWhitespace(callbackErr) ||
@@ -118,13 +121,14 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 		return "", err
 	}
 
-	um, err := s.userService.GetUser(userInfo.Subject)
+	um, err := s.userService.GetUser(ctx, userInfo.Subject)
 	if errors.Is(err, &tonicErrors.NotFoundErr{}) {
-		um, err = s.userService.CreateUser(&pkgModels.User{
-			Claims: pkgModels.StandardClaims{
-				Subject: userInfo.Subject,
-			},
-		})
+		um, err = s.userService.CreateUser(ctx,
+			&pkgModels.User{
+				Claims: pkgModels.StandardClaims{
+					Subject: userInfo.Subject,
+				},
+			})
 	}
 
 	if err != nil {
@@ -147,7 +151,7 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 		return "", err
 	}
 
-	um, err = s.userService.UpdateUser(um, um.Claims.Subject)
+	um, err = s.userService.UpdateUser(ctx, um, um.Claims.Subject)
 	if err != nil {
 		return "", err
 	}
@@ -166,12 +170,12 @@ func (s *AuthService) Callback(ctx context.Context, provider, state, code, callb
 }
 
 // Token generates an auth token for the given user
-func (s *AuthService) Token(subject string) (token *pkgModels.Token, err error) {
+func (s *AuthService) Token(ctx context.Context, subject string) (token *pkgModels.Token, err error) {
 	if helpers.IsEmptyOrWhitespace(subject) {
 		return nil, tonicErrors.NewUnauthorisedError()
 	}
 
-	user, err := s.userService.GetUser(subject)
+	user, err := s.userService.GetUser(ctx, subject)
 	if err != nil {
 		return nil, err
 	}

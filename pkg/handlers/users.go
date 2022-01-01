@@ -52,7 +52,7 @@ func (h *UserHandler) CreateUser() gin.HandlerFunc {
 			return
 		}
 
-		out, err := service.CreateUser(model)
+		out, err := service.CreateUser(c.Request.Context(), model)
 		api.SmartResponse(c, out, err)
 	}
 }
@@ -82,7 +82,7 @@ func (h *UserHandler) UpdateUser() gin.HandlerFunc {
 			return
 		}
 
-		out, err := service.UpdateUser(model, c.Param(constants.IDParam))
+		out, err := service.UpdateUser(c.Request.Context(), model, c.Param(constants.IDParam))
 		api.SmartResponse(c, out, err)
 	}
 }
@@ -104,7 +104,7 @@ func (h *UserHandler) DeleteUser() gin.HandlerFunc {
 		log := dependencies.GetLogger(c)
 		service := services.NewUserService(log, h.backend)
 
-		err := service.DeleteUser(c.Param(constants.IDParam))
+		err := service.DeleteUser(c.Request.Context(), c.Param(constants.IDParam))
 		api.SmartResponse(c, nil, err)
 	}
 }
@@ -126,7 +126,7 @@ func (h *UserHandler) GetUser() gin.HandlerFunc {
 		log := dependencies.GetLogger(c)
 		service := services.NewUserService(log, h.backend)
 
-		out, err := service.GetUser(c.Param(constants.IDParam))
+		out, err := service.GetUser(c.Request.Context(), c.Param(constants.IDParam))
 		api.SmartResponse(c, out, err)
 	}
 }
@@ -147,7 +147,7 @@ func (h *UserHandler) ListUsers() gin.HandlerFunc {
 		log := dependencies.GetLogger(c)
 		service := services.NewUserService(log, h.backend)
 
-		out, err := service.ListUsers()
+		out, err := service.ListUsers(c.Request.Context())
 		api.SmartResponse(c, out, err)
 	}
 }

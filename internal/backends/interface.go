@@ -1,11 +1,15 @@
 package backends
 
-import "github.com/scottkgregory/tonic/pkg/models"
+import (
+	"context"
+
+	"github.com/scottkgregory/tonic/pkg/models"
+)
 
 type Backend interface {
-	CreateUser(in *models.User) (out *models.User, err error)
-	UpdateUser(in *models.User) (out *models.User, err error)
-	GetUser(subject string) (out *models.User, err error)
-	ListUsers() (out []*models.User, err error)
-	Ping() error
+	CreateUser(context.Context, *models.User) (out *models.User, err error)
+	UpdateUser(context.Context, *models.User) (out *models.User, err error)
+	GetUser(ctx context.Context, subject string) (out *models.User, err error)
+	ListUsers(context.Context) (out []*models.User, err error)
+	Ping(context.Context) error
 }

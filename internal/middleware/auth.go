@@ -63,7 +63,7 @@ func Authed(backend backends.Backend,
 
 		if time.Until(expiry) <= (time.Duration(jwtOptions.Duration)*time.Minute)/2 {
 			l.Debug().Msg("Renewing auth")
-			newToken, err := authService.Token(subject)
+			newToken, err := authService.Token(c.Request.Context(), subject)
 			if err != nil {
 				retErr(c, cookieOptions, cancel)
 				return
@@ -80,7 +80,7 @@ func Authed(backend backends.Backend,
 			)
 		}
 
-		user, err := userService.GetUser(subject)
+		user, err := userService.GetUser(c.Request.Context(), subject)
 		if err != nil {
 			retErr(c, cookieOptions, cancel)
 			return
