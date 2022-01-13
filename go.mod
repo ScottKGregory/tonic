@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/Depado/bfchroma v1.3.0
-	github.com/alecthomas/chroma v0.9.4
+	github.com/alecthomas/chroma v0.10.0
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/gin-gonic/gin v1.7.7
 	github.com/lestrrat-go/jwx v1.2.24
