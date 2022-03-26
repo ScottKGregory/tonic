@@ -11,8 +11,8 @@ require (
 	github.com/pquerna/cachecontrol v0.0.0-20201205024021-ac21108117ac // indirect
 	github.com/rs/zerolog v1.26.1
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/scottkgregory/mamba v0.2.0
-	github.com/spf13/cobra v1.3.0
+	github.com/scottkgregory/mamba v0.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.10.1
 	go.mongodb.org/mongo-driver v1.9.1
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
