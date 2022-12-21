@@ -21,21 +21,21 @@ const (
 )
 
 type AuthHandler struct {
-	backend     backends.Backend
-	options     *models.AuthOptions
-	permOptions *models.PermissionsOptions
+	backend    backends.Backend
+	config     *models.AuthConfig
+	permConfig *models.PermissionsConfig
 }
 
-func NewAuthHandler(backend backends.Backend, options *models.AuthOptions, permOptions *models.PermissionsOptions) *AuthHandler {
-	return &AuthHandler{backend, options, permOptions}
+func NewAuthHandler(backend backends.Backend, config *models.AuthConfig, permConfig *models.PermissionsConfig) *AuthHandler {
+	return &AuthHandler{backend, config, permConfig}
 }
 
 func (h *AuthHandler) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, h.backend)
-		permService := services.NewPermissionsService(log, h.permOptions)
-		authService := services.NewAuthService(log, userService, permService, h.options)
+		permService := services.NewPermissionsService(log, h.permConfig)
+		authService := services.NewAuthService(log, userService, permService, h.config)
 
 		url, err := authService.Login("")
 		if err != nil {
@@ -50,8 +50,8 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, h.backend)
-		permService := services.NewPermissionsService(log, h.permOptions)
-		authService := services.NewAuthService(log, userService, permService, h.options)
+		permService := services.NewPermissionsService(log, h.permConfig)
+		authService := services.NewAuthService(log, userService, permService, h.config)
 
 		token, err := authService.Callback(c,
 			c.Request.Context(),
@@ -70,13 +70,13 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 		}
 
 		c.SetCookie(
-			h.options.Cookie.Name,
+			h.config.Cookie.Name,
 			string(token),
-			int(h.options.JWT.Duration)*60,
-			h.options.Cookie.Path,
-			h.options.Cookie.Domain,
-			h.options.Cookie.Secure,
-			h.options.Cookie.HttpOnly,
+			int(h.config.JWT.Duration)*60,
+			h.config.Cookie.Path,
+			h.config.Cookie.Domain,
+			h.config.Cookie.Secure,
+			h.config.Cookie.HttpOnly,
 		)
 
 		c.Redirect(http.StatusTemporaryRedirect, loginRedirect) // Use a return URL in state
@@ -86,13 +86,13 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 func (h *AuthHandler) Logout() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.SetCookie(
-			h.options.Cookie.Name,
+			h.config.Cookie.Name,
 			"",
 			-1,
-			h.options.Cookie.Path,
-			h.options.Cookie.Domain,
-			h.options.Cookie.Secure,
-			h.options.Cookie.HttpOnly,
+			h.config.Cookie.Path,
+			h.config.Cookie.Domain,
+			h.config.Cookie.Secure,
+			h.config.Cookie.HttpOnly,
 		)
 		c.Redirect(http.StatusTemporaryRedirect, logoutRedirect)
 	}
@@ -102,8 +102,8 @@ func (h *AuthHandler) Token() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, h.backend)
-		permService := services.NewPermissionsService(log, h.permOptions)
-		authService := services.NewAuthService(log, userService, permService, h.options)
+		permService := services.NewPermissionsService(log, h.permConfig)
+		authService := services.NewAuthService(log, userService, permService, h.config)
 
 		token, err := authService.Token(c.Request.Context(), c.GetString(constants.SubjectKey))
 		api.SmartResponse(c, token, err)

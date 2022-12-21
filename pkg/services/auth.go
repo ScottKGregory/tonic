@@ -25,7 +25,7 @@ type AuthService struct {
 	log         *zerolog.Logger
 	userService *UserService
 	permService *PermissionsService
-	options     *models.AuthOptions
+	config      *models.AuthConfig
 	authConfig  *oauth2.Config
 	provider    *oidc.Provider
 	privateKey  *rsa.PrivateKey
@@ -33,32 +33,32 @@ type AuthService struct {
 }
 
 // NewAuthService configures a new instance of AuthService
-func NewAuthService(log *zerolog.Logger, userService *UserService, permService *PermissionsService, options *models.AuthOptions) *AuthService {
+func NewAuthService(log *zerolog.Logger, userService *UserService, permService *PermissionsService, config *models.AuthConfig) *AuthService {
 	var err error
-	privateKey, err := helpers.ParsePrivateKey(options.JWT.PrivateKey)
+	privateKey, err := helpers.ParsePrivateKey(config.JWT.PrivateKey)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error reading private key")
 		return nil
 	}
 
-	publicKey, err := helpers.ParsePublicKey(options.JWT.PublicKey)
+	publicKey, err := helpers.ParsePublicKey(config.JWT.PublicKey)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error reading public key")
 		return nil
 	}
 
 	ctx := context.Background()
-	provider, err := oidc.NewProvider(ctx, options.OIDC.Endpoint)
+	provider, err := oidc.NewProvider(ctx, config.OIDC.Endpoint)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error setting up OIDC provider")
 		return nil
 	}
 
 	authConfig := &oauth2.Config{
-		ClientID:     options.OIDC.ClientID,
-		ClientSecret: options.OIDC.ClientSecret,
+		ClientID:     config.OIDC.ClientID,
+		ClientSecret: config.OIDC.ClientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  options.OIDC.RedirectURL,
+		RedirectURL:  config.OIDC.RedirectURL,
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
@@ -69,7 +69,7 @@ func NewAuthService(log *zerolog.Logger, userService *UserService, permService *
 		log,
 		userService,
 		permService,
-		options,
+		config,
 		authConfig,
 		provider,
 		privateKey,
@@ -209,7 +209,7 @@ func (s *AuthService) Verify(tok string) (bool, jwt.Token) {
 func (s *AuthService) createToken(user *models.User) (token openid.Token, err error) {
 	t := openid.New()
 
-	if err := t.Set(jwt.IssuerKey, s.options.JWT.Issuer); err != nil {
+	if err := t.Set(jwt.IssuerKey, s.config.JWT.Issuer); err != nil {
 		return nil, err
 	}
 
@@ -217,7 +217,7 @@ func (s *AuthService) createToken(user *models.User) (token openid.Token, err er
 		return nil, err
 	}
 
-	if err := t.Set(jwt.AudienceKey, s.options.JWT.Audience); err != nil {
+	if err := t.Set(jwt.AudienceKey, s.config.JWT.Audience); err != nil {
 		return nil, err
 	}
 
@@ -225,7 +225,7 @@ func (s *AuthService) createToken(user *models.User) (token openid.Token, err er
 		return nil, err
 	}
 
-	exp := time.Now().Add(time.Duration(s.options.JWT.Duration) * time.Minute).UTC()
+	exp := time.Now().Add(time.Duration(s.config.JWT.Duration) * time.Minute).UTC()
 	if err := t.Set(jwt.ExpirationKey, exp); err != nil {
 		return nil, err
 	}

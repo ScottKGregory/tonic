@@ -18,27 +18,27 @@ const (
 )
 
 func Authed(backend backends.Backend,
-	cookieOptions *models.CookieOptions,
-	jwtOptions *models.JWTOptions,
-	authOptions *models.AuthOptions,
-	permissionOptions *models.PermissionsOptions,
+	cookieConfig *models.CookieConfig,
+	jwtConfig *models.JWTConfig,
+	authConfig *models.AuthConfig,
+	permissionConfig *models.PermissionsConfig,
 	cancel bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
 		userService := services.NewUserService(log, backend)
-		permService := services.NewPermissionsService(log, permissionOptions)
-		authService := services.NewAuthService(log, userService, permService, authOptions)
+		permService := services.NewPermissionsService(log, permissionConfig)
+		authService := services.NewAuthService(log, userService, permService, authConfig)
 
 		header := c.GetHeader(constants.Authorization)
-		token, err := c.Cookie(cookieOptions.Name)
+		token, err := c.Cookie(cookieConfig.Name)
 		if err != nil {
 			if header == "" {
-				retErr(c, cookieOptions, cancel)
+				retErr(c, cookieConfig, cancel)
 				return
 			}
 
 			if !strings.HasPrefix(strings.ToLower(header), bearerPrefix) {
-				retErr(c, cookieOptions, cancel)
+				retErr(c, cookieConfig, cancel)
 				return
 			}
 
@@ -50,7 +50,7 @@ func Authed(backend backends.Backend,
 
 		valid, validToken := authService.Verify(token)
 		if !valid {
-			retErr(c, cookieOptions, cancel)
+			retErr(c, cookieConfig, cancel)
 			return
 		}
 
@@ -61,28 +61,28 @@ func Authed(backend backends.Backend,
 		c.Set(constants.LoggerKey, &l)
 		log = &l
 
-		if time.Until(expiry) <= (time.Duration(jwtOptions.Duration)*time.Minute)/2 {
+		if time.Until(expiry) <= (time.Duration(jwtConfig.Duration)*time.Minute)/2 {
 			l.Debug().Msg("Renewing auth")
 			newToken, err := authService.Token(c.Request.Context(), subject)
 			if err != nil {
-				retErr(c, cookieOptions, cancel)
+				retErr(c, cookieConfig, cancel)
 				return
 			}
 
 			c.SetCookie(
-				cookieOptions.Name,
+				cookieConfig.Name,
 				newToken.Token,
-				int(jwtOptions.Duration)*int(time.Minute),
-				cookieOptions.Path,
-				cookieOptions.Domain,
-				cookieOptions.Secure,
-				cookieOptions.HttpOnly,
+				int(jwtConfig.Duration)*int(time.Minute),
+				cookieConfig.Path,
+				cookieConfig.Domain,
+				cookieConfig.Secure,
+				cookieConfig.HttpOnly,
 			)
 		}
 
 		user, err := userService.GetUser(c.Request.Context(), subject)
 		if err != nil {
-			retErr(c, cookieOptions, cancel)
+			retErr(c, cookieConfig, cancel)
 			return
 		}
 
@@ -94,9 +94,9 @@ func Authed(backend backends.Backend,
 	}
 }
 
-func retErr(c *gin.Context, cookieOptions *models.CookieOptions, cancel bool) {
+func retErr(c *gin.Context, cookieConfig *models.CookieConfig, cancel bool) {
 	if cancel {
-		c.SetCookie(cookieOptions.Name, "", -1, cookieOptions.Path, cookieOptions.Domain, cookieOptions.Secure, cookieOptions.HttpOnly)
+		c.SetCookie(cookieConfig.Name, "", -1, cookieConfig.Path, cookieConfig.Domain, cookieConfig.Secure, cookieConfig.HttpOnly)
 		api.UnauthorisedResponse(c)
 		c.Abort()
 	}

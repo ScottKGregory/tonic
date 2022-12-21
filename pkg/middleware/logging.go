@@ -13,13 +13,13 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func Zerologger(options models.LogOptions) gin.HandlerFunc {
-	if !options.JSON {
+func Zerologger(config models.LogConfig) gin.HandlerFunc {
+	if !config.JSON {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}
-	dependencies.Tag = options.Tag
+	dependencies.Tag = config.Tag
 
-	level, err := zerolog.ParseLevel(options.Level)
+	level, err := zerolog.ParseLevel(config.Level)
 	if err != nil {
 		log.Error().Err(err).Msg("Error parsing log level, defaulting to trace")
 		log.Logger = log.Level(zerolog.TraceLevel)
@@ -36,7 +36,7 @@ func Zerologger(options models.LogOptions) gin.HandlerFunc {
 		t := time.Now()
 
 		l := populatedLogger(c, rid)
-		if !containsStr(options.IgnoreRoutes, c.FullPath()) {
+		if !containsStr(config.IgnoreRoutes, c.FullPath()) {
 			l.Info().Msg("Requested")
 		}
 
@@ -55,7 +55,7 @@ func Zerologger(options models.LogOptions) gin.HandlerFunc {
 			ll = l.Error()
 		}
 
-		if !containsStr(options.IgnoreRoutes, c.FullPath()) {
+		if !containsStr(config.IgnoreRoutes, c.FullPath()) {
 			ll.
 				Int("status", statusCode).
 				Dur("duration-ns", time.Duration(time.Since(t).Nanoseconds())).

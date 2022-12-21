@@ -10,11 +10,11 @@ import (
 type PermissionsService struct {
 	log         *zerolog.Logger
 	permissions []string
-	options     *models.PermissionsOptions
+	config      *models.PermissionsConfig
 }
 
-// NewPermissionService initialises a new PermissionService based on the options supplied
-func NewPermissionsService(log *zerolog.Logger, options *models.PermissionsOptions) *PermissionsService {
+// NewPermissionService initialises a new PermissionService based on the config supplied
+func NewPermissionsService(log *zerolog.Logger, config *models.PermissionsConfig) *PermissionsService {
 	return &PermissionsService{
 		log: log,
 		permissions: append([]string{
@@ -25,8 +25,8 @@ func NewPermissionsService(log *zerolog.Logger, options *models.PermissionsOptio
 			"users:list:*",
 			"token:get:*",
 			"permissions:list:*",
-		}, options.Custom...),
-		options: options,
+		}, config.Custom...),
+		config: config,
 	}
 }
 
@@ -39,7 +39,7 @@ func (s *PermissionsService) ListPermissions() (out []string, err error) {
 }
 
 func (s *PermissionsService) DefaultPermissions() (out []string) {
-	for _, perm := range s.options.Default {
+	for _, perm := range s.config.Default {
 		out = append(out, strings.ToLower(perm))
 	}
 

@@ -14,11 +14,11 @@ type ListPermissionsResponse struct {
 } //@Name ListPermissionsResponse
 
 type PermissionsHandler struct {
-	options *models.PermissionsOptions
+	config *models.PermissionsConfig
 }
 
-func NewPermissionsHandler(options *models.PermissionsOptions) *PermissionsHandler {
-	return &PermissionsHandler{options}
+func NewPermissionsHandler(config *models.PermissionsConfig) *PermissionsHandler {
+	return &PermissionsHandler{config}
 }
 
 // ListPermissions lists all permissions using the configured backend
@@ -35,7 +35,7 @@ func NewPermissionsHandler(options *models.PermissionsOptions) *PermissionsHandl
 func (h *PermissionsHandler) ListPermissions() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		log := dependencies.GetLogger(c)
-		service := services.NewPermissionsService(log, h.options)
+		service := services.NewPermissionsService(log, h.config)
 
 		perms, err := service.ListPermissions()
 		api.SmartResponse(c, perms, err)

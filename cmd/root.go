@@ -14,74 +14,56 @@ import (
 	"github.com/scottkgregory/tonic/pkg/constants"
 	"github.com/scottkgregory/tonic/pkg/dependencies"
 	"github.com/scottkgregory/tonic/pkg/handlers"
-	"github.com/scottkgregory/tonic/pkg/helpers"
 	"github.com/scottkgregory/tonic/pkg/middleware"
 	"github.com/scottkgregory/tonic/pkg/models"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-type AppConfig struct {
-	ConfigFile string         `config:"config.yaml, The yaml config file to read, true, c"`
-	Port       int            `config:"8080, The port to host the site on, false, p"`
-	CertGen    bool           `config:"false, Generate new JWT certificates, false, g"`
-	Tonic      models.Options `config:""`
-}
-
-var cfg AppConfig
+var cfg models.Config
 
 var rootCmd = &cobra.Command{
 	Use:   "webapi",
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		if cfg.CertGen {
-			priv, pub := helpers.GenerateRsaKeyPair()
-			fmt.Println("Private")
-			fmt.Println(strings.ReplaceAll(helpers.ExportPrivateKey(priv), "\n", "\\n"))
-			fmt.Println("Public")
-			publicStr, _ := helpers.ExportPublicKey(pub)
-			fmt.Println(strings.ReplaceAll(publicStr, "\n", "\\n"))
-			return
-		}
-
-		cfg.Tonic.Log.IgnoreRoutes = []string{"/health", "/liveliness", "/readiness"}
+		cfg.Log.IgnoreRoutes = []string{"/health", "/liveliness", "/readiness"}
 		gin.SetMode(gin.ReleaseMode)
 
 		router := gin.New()
-		router.Use(middleware.Zerologger(cfg.Tonic.Log))
+		router.Use(middleware.Zerologger(cfg.Log))
 		log := dependencies.GetLogger()
 
 		var backend backends.Backend
 		var err error
-		if cfg.Tonic.Backend.InMemory {
-			backend = backends.NewMemoryBackend(&cfg.Tonic.Backend)
+		if cfg.Backend.InMemory {
+			backend = backends.NewMemoryBackend(&cfg.Backend)
 		} else {
-			backend, err = backends.NewMongoBackend(context.Background(), &cfg.Tonic.Backend)
+			backend, err = backends.NewMongoBackend(context.Background(), &cfg.Backend)
 		}
 		if err != nil {
 			panic(err)
 		}
 
-		homeHandler := handlers.NewHomeHandler(cfg.Tonic.PageHeader)
-		errorHandler := handlers.NewErrorHandler(cfg.Tonic.PageHeader)
+		homeHandler := handlers.NewHomeHandler(cfg.PageHeader)
+		errorHandler := handlers.NewErrorHandler(cfg.PageHeader)
 		probeHandler := handlers.NewProbeHandler(backend)
 		userHandler := handlers.NewUserHandler(backend)
-		authHandler := handlers.NewAuthHandler(backend, &cfg.Tonic.Auth, &cfg.Tonic.Permissions)
-		permissionHandler := handlers.NewPermissionsHandler(&cfg.Tonic.Permissions)
+		authHandler := handlers.NewAuthHandler(backend, &cfg.Auth, &cfg.Permissions)
+		permissionHandler := handlers.NewPermissionsHandler(&cfg.Permissions)
 
-		router.Use(middleware.Authed(backend, &cfg.Tonic.Auth.Cookie, &cfg.Tonic.Auth.JWT, &cfg.Tonic.Auth, &cfg.Tonic.Permissions, false))
+		router.Use(middleware.Authed(backend, &cfg.Auth.Cookie, &cfg.Auth.JWT, &cfg.Auth, &cfg.Permissions, false))
 
-		if !cfg.Tonic.DisableHomepage {
+		if !cfg.DisableHomepage {
 			router.GET("/", homeHandler.Home())
 		}
 
-		if !cfg.Tonic.DisableErrorPages {
+		if !cfg.DisableErrorPages {
 			router.GET("/error/:code", errorHandler.Error(0))
 			router.NoRoute(errorHandler.Error(http.StatusNotFound))
 		}
 
-		if !cfg.Tonic.DisableHealthProbes {
+		if !cfg.DisableHealthProbes {
 			router.GET("/health", probeHandler.Health())
 			router.GET("/liveliness", probeHandler.Liveliness())
 			router.GET("/readiness", probeHandler.Readiness())
@@ -95,7 +77,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		api := router.Group("/api")
-		api.Use(middleware.Authed(backend, &cfg.Tonic.Auth.Cookie, &cfg.Tonic.Auth.JWT, &cfg.Tonic.Auth, &cfg.Tonic.Permissions, true))
+		api.Use(middleware.Authed(backend, &cfg.Auth.Cookie, &cfg.Auth.JWT, &cfg.Auth, &cfg.Permissions, true))
 		{
 			users := api.Group("/users")
 			{
@@ -136,7 +118,9 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	mamba.MustBind(&AppConfig{}, rootCmd, &mamba.Options{PrefixEmbedded: false})
+	mamba.MustBind(&models.Config{}, rootCmd, &mamba.Options{PrefixEmbedded: false})
+
+	rootCmd.AddCommand(certsCmd)
 }
 
 func initConfig() {

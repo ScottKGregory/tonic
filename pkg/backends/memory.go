@@ -7,15 +7,15 @@ import (
 )
 
 type Memory struct {
-	options *models.BackendOptions
+	config *models.BackendConfig
 }
 
 var _ Backend = Memory{}
 
 var users []*models.User
 
-func NewMemoryBackend(options *models.BackendOptions) *Memory {
-	return &Memory{options}
+func NewMemoryBackend(config *models.BackendConfig) *Memory {
+	return &Memory{config}
 }
 
 func (m Memory) CreateUser(ctx context.Context, in *models.User) (out *models.User, err error) {
