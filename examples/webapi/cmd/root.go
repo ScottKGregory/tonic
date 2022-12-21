@@ -45,7 +45,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		logger := tonic.GetLogger()
-		logger.Info().Msg("Starting listener")
+		logger.Info().Int("port", cfg.Port).Msg("Starting listener")
 		err = r.Run(fmt.Sprintf(":%d", cfg.Port))
 		if err != nil {
 			logger.Fatal().Err(err).Msg("Error starting listener")

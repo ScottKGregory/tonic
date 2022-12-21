@@ -23,16 +23,15 @@ import (
 
 // AuthService contains auth related operations
 type AuthService struct {
-	state              string
-	log                *zerolog.Logger
-	userService        *UserService
-	permService        *PermissionsService
-	options            *models.AuthOptions
-	authConfig         *oauth2.Config
-	provider           *oidc.Provider
-	privateKey         *rsa.PrivateKey
-	publicKey          *rsa.PublicKey
-	postUserCreateHook pkgModels.UserHook
+	state       string
+	log         *zerolog.Logger
+	userService *UserService
+	permService *PermissionsService
+	options     *models.AuthOptions
+	authConfig  *oauth2.Config
+	provider    *oidc.Provider
+	privateKey  *rsa.PrivateKey
+	publicKey   *rsa.PublicKey
 }
 
 // NewAuthService configures a new instance of AuthService
@@ -77,7 +76,6 @@ func NewAuthService(log *zerolog.Logger, userService *UserService, permService *
 		provider,
 		privateKey,
 		publicKey,
-		options.PostUserCreateHook,
 	}
 }
 
