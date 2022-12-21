@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/scottkgregory/tonic/internal/constants"
-	"github.com/scottkgregory/tonic/internal/helpers"
+	"github.com/scottkgregory/tonic/pkg/constants"
+	"github.com/scottkgregory/tonic/pkg/helpers"
 )
 
 var InvalidErr = errors.New("invalid")

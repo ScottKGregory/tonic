@@ -2,7 +2,7 @@ package dependencies
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/constants"
+	"github.com/scottkgregory/tonic/pkg/constants"
 	"github.com/scottkgregory/tonic/pkg/models"
 )
 

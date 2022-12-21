@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/rs/zerolog"
-	"github.com/scottkgregory/tonic/internal/api/errors"
-	"github.com/scottkgregory/tonic/internal/backends"
-	"github.com/scottkgregory/tonic/internal/constants"
-	"github.com/scottkgregory/tonic/internal/helpers"
+	"github.com/scottkgregory/tonic/pkg/api/errors"
+	"github.com/scottkgregory/tonic/pkg/backends"
+	"github.com/scottkgregory/tonic/pkg/constants"
+	"github.com/scottkgregory/tonic/pkg/helpers"
 	"github.com/scottkgregory/tonic/pkg/models"
 )
 

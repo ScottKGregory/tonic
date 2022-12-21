@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/api"
-	"github.com/scottkgregory/tonic/internal/backends"
+	"github.com/scottkgregory/tonic/pkg/api"
+	"github.com/scottkgregory/tonic/pkg/backends"
 )
 
 type ProbeResponse struct {

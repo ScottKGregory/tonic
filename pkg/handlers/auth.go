@@ -1,17 +1,16 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/api"
-	tonicErrors "github.com/scottkgregory/tonic/internal/api/errors"
-	"github.com/scottkgregory/tonic/internal/backends"
-	"github.com/scottkgregory/tonic/internal/constants"
-	"github.com/scottkgregory/tonic/internal/dependencies"
-	"github.com/scottkgregory/tonic/internal/models"
-	"github.com/scottkgregory/tonic/internal/services"
+	"github.com/scottkgregory/tonic/pkg/api"
+	"github.com/scottkgregory/tonic/pkg/api/errors"
+	"github.com/scottkgregory/tonic/pkg/backends"
+	"github.com/scottkgregory/tonic/pkg/constants"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
+	"github.com/scottkgregory/tonic/pkg/models"
+	"github.com/scottkgregory/tonic/pkg/services"
 )
 
 const (
@@ -62,7 +61,7 @@ func (h *AuthHandler) Callback() gin.HandlerFunc {
 			c.Query("error"),
 			c.Query("error_description"),
 		)
-		if errors.Is(err, &tonicErrors.UnauthorisedErr{}) {
+		if errors.Is(err, &errors.UnauthorisedErr{}) {
 			c.Redirect(http.StatusTemporaryRedirect, unauthedRedirect)
 			return
 		} else if err != nil {

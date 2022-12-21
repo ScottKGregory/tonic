@@ -4,8 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/scottkgregory/tonic/internal/models"
-	pkgModels "github.com/scottkgregory/tonic/pkg/models"
+	"github.com/scottkgregory/tonic/pkg/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -38,13 +37,13 @@ func NewMongoBackend(ctx context.Context, options *models.BackendOptions) (*Mong
 	return &Mongo{options, client}, nil
 }
 
-func (m Mongo) CreateUser(ctx context.Context, in *pkgModels.User) (out *pkgModels.User, err error) {
+func (m Mongo) CreateUser(ctx context.Context, in *models.User) (out *models.User, err error) {
 	c := m.client.Database(m.options.Database).Collection(m.options.UserCollection)
 	_, err = c.InsertOne(ctx, in)
 	return in, err
 }
 
-func (m Mongo) UpdateUser(ctx context.Context, in *pkgModels.User) (out *pkgModels.User, err error) {
+func (m Mongo) UpdateUser(ctx context.Context, in *models.User) (out *models.User, err error) {
 	c := m.client.Database(m.options.Database).Collection(m.options.UserCollection)
 	upd := bson.M{"$set": bson.M{"claims": in.Claims, "permissions": in.Permissions, "deleted": in.Deleted}}
 	res, err := c.UpdateOne(ctx, bson.M{"claims.subject": in.Claims.Subject}, upd)
@@ -55,8 +54,8 @@ func (m Mongo) UpdateUser(ctx context.Context, in *pkgModels.User) (out *pkgMode
 	return in, err
 }
 
-func (m Mongo) GetUser(ctx context.Context, sub string) (out *pkgModels.User, err error) {
-	out = &pkgModels.User{}
+func (m Mongo) GetUser(ctx context.Context, sub string) (out *models.User, err error) {
+	out = &models.User{}
 	c := m.client.Database(m.options.Database).Collection(m.options.UserCollection)
 	err = c.FindOne(ctx, bson.M{"claims.subject": sub}).Decode(&out)
 	if errors.Is(err, mongo.ErrNoDocuments) {
@@ -66,8 +65,8 @@ func (m Mongo) GetUser(ctx context.Context, sub string) (out *pkgModels.User, er
 	return out, err
 }
 
-func (m Mongo) ListUsers(ctx context.Context) (out []*pkgModels.User, err error) {
-	out = []*pkgModels.User{}
+func (m Mongo) ListUsers(ctx context.Context) (out []*models.User, err error) {
+	out = []*models.User{}
 	c := m.client.Database(m.options.Database).Collection(m.options.UserCollection)
 	curs, err := c.Find(ctx, bson.M{})
 	if errors.Is(err, mongo.ErrNoDocuments) {

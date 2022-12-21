@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/helpers"
+	"github.com/scottkgregory/tonic/pkg/helpers"
 )
 
 type HomeHandler struct {

@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/scottkgregory/tonic/internal/constants"
+	"github.com/scottkgregory/tonic/pkg/constants"
 )
 
 var Tag string

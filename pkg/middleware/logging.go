@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/scottkgregory/tonic/internal/constants"
-	"github.com/scottkgregory/tonic/internal/dependencies"
-	"github.com/scottkgregory/tonic/internal/models"
+	"github.com/scottkgregory/tonic/pkg/constants"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
+	"github.com/scottkgregory/tonic/pkg/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 

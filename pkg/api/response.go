@@ -1,12 +1,11 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	tonicErrors "github.com/scottkgregory/tonic/internal/api/errors"
-	"github.com/scottkgregory/tonic/internal/dependencies"
+	"github.com/scottkgregory/tonic/pkg/api/errors"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
 )
 
 type ResponseModel struct {
@@ -16,17 +15,17 @@ type ResponseModel struct {
 }
 
 func SmartResponse(c *gin.Context, data interface{}, err error) {
-	if errors.Is(err, &tonicErrors.ValidationErr{}) {
-		ValidationErrorResponse(c, err.(*tonicErrors.ValidationErr))
+	if errors.Is(err, &errors.ValidationErr{}) {
+		ValidationErrorResponse(c, err.(*errors.ValidationErr))
 		return
-	} else if errors.Is(err, &tonicErrors.NotFoundErr{}) {
-		NotFoundResponse(c, err.(*tonicErrors.NotFoundErr))
+	} else if errors.Is(err, &errors.NotFoundErr{}) {
+		NotFoundResponse(c, err.(*errors.NotFoundErr))
 		return
-	} else if errors.Is(err, &tonicErrors.UnauthorisedErr{}) {
-		UnauthorisedResponse(c, err.(*tonicErrors.UnauthorisedErr))
+	} else if errors.Is(err, &errors.UnauthorisedErr{}) {
+		UnauthorisedResponse(c, err.(*errors.UnauthorisedErr))
 		return
-	} else if errors.Is(err, &tonicErrors.ForbiddenErr{}) {
-		ForbiddenResponse(c, err.(*tonicErrors.ForbiddenErr))
+	} else if errors.Is(err, &errors.ForbiddenErr{}) {
+		ForbiddenResponse(c, err.(*errors.ForbiddenErr))
 		return
 	} else if err != nil {
 		ErrorResponse(c, http.StatusInternalServerError, err)
@@ -49,8 +48,8 @@ func SuccessResponse(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, &ResponseModel{Data: data})
 }
 
-func UnauthorisedResponse(c *gin.Context, errs ...*tonicErrors.UnauthorisedErr) {
-	err := tonicErrors.NewUnauthorisedError()
+func UnauthorisedResponse(c *gin.Context, errs ...*errors.UnauthorisedErr) {
+	err := errors.NewUnauthorisedError()
 	if len(errs) == 1 {
 		err = errs[0]
 	}
@@ -58,8 +57,8 @@ func UnauthorisedResponse(c *gin.Context, errs ...*tonicErrors.UnauthorisedErr) 
 	ErrorResponse(c, http.StatusUnauthorized, err)
 }
 
-func ForbiddenResponse(c *gin.Context, errs ...*tonicErrors.ForbiddenErr) {
-	err := tonicErrors.NewForbiddenError()
+func ForbiddenResponse(c *gin.Context, errs ...*errors.ForbiddenErr) {
+	err := errors.NewForbiddenError()
 	if len(errs) == 1 {
 		err = errs[0]
 	}
@@ -67,8 +66,8 @@ func ForbiddenResponse(c *gin.Context, errs ...*tonicErrors.ForbiddenErr) {
 	ErrorResponse(c, http.StatusForbidden, err)
 }
 
-func NotFoundResponse(c *gin.Context, errs ...*tonicErrors.NotFoundErr) {
-	err := tonicErrors.NewNotFoundError("")
+func NotFoundResponse(c *gin.Context, errs ...*errors.NotFoundErr) {
+	err := errors.NewNotFoundError("")
 	if len(errs) == 1 {
 		err = errs[0]
 	}
@@ -76,8 +75,8 @@ func NotFoundResponse(c *gin.Context, errs ...*tonicErrors.NotFoundErr) {
 	ErrorResponse(c, http.StatusNotFound, err)
 }
 
-func ValidationErrorResponse(c *gin.Context, errs ...*tonicErrors.ValidationErr) {
-	err := tonicErrors.NewValidationError()
+func ValidationErrorResponse(c *gin.Context, errs ...*errors.ValidationErr) {
+	err := errors.NewValidationError()
 	if len(errs) == 1 {
 		err = errs[0]
 	}
@@ -92,7 +91,7 @@ func ErrorResponse(c *gin.Context, code int, err error, validation ...map[string
 		val = validation[0]
 	}
 
-	if e, ok := err.(tonicErrors.TonicError); ok {
+	if e, ok := err.(errors.TonicError); ok {
 		c.JSON(code, &ResponseModel{
 			Error:      e.External(),
 			Validation: val,

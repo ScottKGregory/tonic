@@ -4,21 +4,21 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/api"
-	tonicErrors "github.com/scottkgregory/tonic/internal/api/errors"
-	"github.com/scottkgregory/tonic/internal/dependencies"
-	"github.com/scottkgregory/tonic/internal/services"
+	"github.com/scottkgregory/tonic/pkg/api"
+	errors "github.com/scottkgregory/tonic/pkg/api/errors"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
+	"github.com/scottkgregory/tonic/pkg/services"
 )
 
 func HasAny(required ...string) gin.HandlerFunc {
 	if valid, messages := services.ValidatePermissions(required...); !valid {
-		panic(tonicErrors.NewValidationError(messages))
+		panic(errors.NewValidationError(messages))
 	}
 
 	return func(c *gin.Context) {
 		user, ok := dependencies.GetUser(c)
 		if !ok {
-			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
+			api.ForbiddenResponse(c, errors.NewForbiddenError(required...))
 			c.Abort()
 			return
 		}
@@ -29,20 +29,20 @@ func HasAny(required ...string) gin.HandlerFunc {
 			return
 		}
 
-		api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
+		api.ForbiddenResponse(c, errors.NewForbiddenError(required...))
 		c.Abort()
 	}
 }
 
 func HasAll(required ...string) gin.HandlerFunc {
 	if valid, messages := services.ValidatePermissions(required...); !valid {
-		panic(tonicErrors.NewValidationError(messages))
+		panic(errors.NewValidationError(messages))
 	}
 
 	return func(c *gin.Context) {
 		user, ok := dependencies.GetUser(c)
 		if !ok {
-			api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
+			api.ForbiddenResponse(c, errors.NewForbiddenError(required...))
 			c.Abort()
 			return
 		}
@@ -59,7 +59,7 @@ func HasAll(required ...string) gin.HandlerFunc {
 			return
 		}
 
-		api.ForbiddenResponse(c, tonicErrors.NewForbiddenError(required...))
+		api.ForbiddenResponse(c, errors.NewForbiddenError(required...))
 		c.Abort()
 	}
 }

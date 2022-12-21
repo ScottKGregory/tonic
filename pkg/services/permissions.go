@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/rs/zerolog"
-	"github.com/scottkgregory/tonic/internal/models"
+	"github.com/scottkgregory/tonic/pkg/models"
 )
 
 type PermissionsService struct {

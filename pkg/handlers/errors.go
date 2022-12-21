@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/constants"
-	"github.com/scottkgregory/tonic/internal/helpers"
+	"github.com/scottkgregory/tonic/pkg/constants"
+	"github.com/scottkgregory/tonic/pkg/helpers"
 )
 
 const errMarkdown = `

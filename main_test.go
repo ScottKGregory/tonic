@@ -1,1 +1,1 @@
-package tonic
+package main

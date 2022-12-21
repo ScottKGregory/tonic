@@ -3,7 +3,7 @@ package errors
 import (
 	"fmt"
 
-	"github.com/scottkgregory/tonic/internal/helpers"
+	"github.com/scottkgregory/tonic/pkg/helpers"
 )
 
 type NotFoundErr struct {

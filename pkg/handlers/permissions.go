@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/scottkgregory/tonic/internal/api"
-	"github.com/scottkgregory/tonic/internal/dependencies"
-	"github.com/scottkgregory/tonic/internal/models"
-	"github.com/scottkgregory/tonic/internal/services"
+	"github.com/scottkgregory/tonic/pkg/api"
+	"github.com/scottkgregory/tonic/pkg/dependencies"
+	"github.com/scottkgregory/tonic/pkg/models"
+	"github.com/scottkgregory/tonic/pkg/services"
 )
 
 type ListPermissionsResponse struct {

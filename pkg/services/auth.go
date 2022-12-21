@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"crypto/rsa"
-	"errors"
 	"time"
 
 	"github.com/coreos/go-oidc"
@@ -13,11 +12,10 @@ import (
 	"github.com/lestrrat-go/jwx/jwt"
 	"github.com/lestrrat-go/jwx/jwt/openid"
 	"github.com/rs/zerolog"
-	tonicErrors "github.com/scottkgregory/tonic/internal/api/errors"
-	"github.com/scottkgregory/tonic/internal/constants"
-	"github.com/scottkgregory/tonic/internal/helpers"
-	"github.com/scottkgregory/tonic/internal/models"
-	pkgModels "github.com/scottkgregory/tonic/pkg/models"
+	"github.com/scottkgregory/tonic/pkg/api/errors"
+	"github.com/scottkgregory/tonic/pkg/constants"
+	"github.com/scottkgregory/tonic/pkg/helpers"
+	"github.com/scottkgregory/tonic/pkg/models"
 	"golang.org/x/oauth2"
 )
 
@@ -97,7 +95,7 @@ func (s *AuthService) Callback(c *gin.Context, ctx context.Context, provider, st
 		helpers.IsEmptyOrWhitespace(state) ||
 		!helpers.IsEmptyOrWhitespace(callbackErr) ||
 		!helpers.IsEmptyOrWhitespace(errDescription) {
-		return "", tonicErrors.NewUnauthorisedError()
+		return "", errors.NewUnauthorisedError()
 	}
 
 	decrypted, err := jwe.Decrypt([]byte(state), jwa.RSA1_5, s.privateKey)
@@ -120,10 +118,10 @@ func (s *AuthService) Callback(c *gin.Context, ctx context.Context, provider, st
 	}
 
 	um, err := s.userService.GetUser(ctx, userInfo.Subject)
-	if errors.Is(err, &tonicErrors.NotFoundErr{}) {
+	if errors.Is(err, &errors.NotFoundErr{}) {
 		um, err = s.userService.CreateUser(ctx,
-			&pkgModels.User{
-				Claims: pkgModels.StandardClaims{
+			&models.User{
+				Claims: models.StandardClaims{
 					Subject: userInfo.Subject,
 				},
 			})
@@ -133,7 +131,7 @@ func (s *AuthService) Callback(c *gin.Context, ctx context.Context, provider, st
 		return "", err
 	}
 
-	um.Claims = pkgModels.StandardClaims{
+	um.Claims = models.StandardClaims{
 		Subject:       userInfo.Subject,
 		Profile:       userInfo.Profile,
 		Email:         userInfo.Email,
@@ -168,9 +166,9 @@ func (s *AuthService) Callback(c *gin.Context, ctx context.Context, provider, st
 }
 
 // Token generates an auth token for the given user
-func (s *AuthService) Token(ctx context.Context, subject string) (token *pkgModels.Token, err error) {
+func (s *AuthService) Token(ctx context.Context, subject string) (token *models.Token, err error) {
 	if helpers.IsEmptyOrWhitespace(subject) {
-		return nil, tonicErrors.NewUnauthorisedError()
+		return nil, errors.NewUnauthorisedError()
 	}
 
 	user, err := s.userService.GetUser(ctx, subject)
@@ -188,7 +186,7 @@ func (s *AuthService) Token(ctx context.Context, subject string) (token *pkgMode
 		return nil, err
 	}
 
-	return &pkgModels.Token{
+	return &models.Token{
 		Token:  string(signed),
 		Expiry: oidcTok.Expiration(),
 	}, nil
@@ -208,7 +206,7 @@ func (s *AuthService) Verify(tok string) (bool, jwt.Token) {
 	return true, token
 }
 
-func (s *AuthService) createToken(user *pkgModels.User) (token openid.Token, err error) {
+func (s *AuthService) createToken(user *models.User) (token openid.Token, err error) {
 	t := openid.New()
 
 	if err := t.Set(jwt.IssuerKey, s.options.JWT.Issuer); err != nil {
